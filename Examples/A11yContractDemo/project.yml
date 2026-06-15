@@ -1,0 +1,60 @@
+name: A11yContractDemo
+options:
+  bundleIdPrefix: com.a11ycontractkit
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.0"
+packages:
+  A11yContractKit:
+    path: ../../
+targets:
+  A11yContractDemo:
+    type: application
+    platform: iOS
+    sources:
+      - A11yContractDemo
+    dependencies:
+      - package: A11yContractKit
+        product: A11yContractCore
+      - package: A11yContractKit
+        product: A11yContractUIKit
+      - package: A11yContractKit
+        product: A11yContractSwiftUI
+      - package: A11yContractKit
+        product: A11yContractReporter
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.a11ycontractkit.demo
+      PRODUCT_NAME: A11yContractDemo
+      MARKETING_VERSION: "0.1.0"
+      CURRENT_PROJECT_VERSION: "1"
+      GENERATE_INFOPLIST_FILE: YES
+      INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+      INFOPLIST_KEY_UILaunchScreen_Generation: YES
+      INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+      SWIFT_VERSION: "5.9"
+      TARGETED_DEVICE_FAMILY: "1,2"
+  A11yContractDemoTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - A11yContractDemoTests
+    dependencies:
+      - target: A11yContractDemo
+      - package: A11yContractKit
+        product: A11yContractTesting
+      - package: A11yContractKit
+        product: A11yContractCore
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.a11ycontractkit.demo.tests
+      GENERATE_INFOPLIST_FILE: YES
+      SWIFT_VERSION: "5.9"
+
+schemes:
+  A11yContractDemo:
+    build:
+      targets:
+        A11yContractDemo: all
+        A11yContractDemoTests: [test]
+    test:
+      targets:
+        - A11yContractDemoTests

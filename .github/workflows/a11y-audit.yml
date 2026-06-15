@@ -1,0 +1,46 @@
+name: Accessibility Audit
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  a11y:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build A11yContract CLI
+        run: swift build -c release
+
+      - name: Run iOS Simulator Tests
+        run: |
+          xcodebuild test \
+            -scheme A11yContractKit-Package \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -quiet
+
+      - name: Run Accessibility Scan
+        run: |
+          .build/release/a11y-contract scan \
+            --project . \
+            --reporters markdown,sonar,sarif,junit \
+            --output .a11y \
+            --fail-on-new-issues \
+            --baseline .a11y/baseline.json
+        continue-on-error: true
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .a11y/a11y.sarif
+        if: always()
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-reports
+          path: .a11y
+        if: always()

@@ -1,0 +1,105 @@
+site_name: A11yContractKit
+site_description: Developer-first accessibility contract layer for iOS apps
+site_url: https://giovaninb.github.io/a11y-contract-kit/
+repo_url: https://github.com/giovaninb/a11y-contract-kit
+repo_name: giovaninb/a11y-contract-kit
+docs_dir: Docs
+edit_uri: edit/main/Docs/{lang}/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: true
+      reconfigure_material: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+          site_name: A11yContractKit
+        - locale: pt
+          name: Português
+          build: true
+          site_name: A11yContractKit
+          theme:
+            language: pt
+          nav_translations:
+            Home: Início
+            Guides: Guias
+            Component Contracts: Contratos de componente
+            Design Handoff: Handoff de design
+            WCAG Mapping: Mapeamento WCAG
+            Integrations: Integrações
+            SonarQube: SonarQube
+            CI/CD: CI/CD
+            Demo: Demo
+            A11yContractDemo: A11yContractDemo
+        - locale: es
+          name: Español
+          build: true
+          site_name: A11yContractKit
+          theme:
+            language: es
+          nav_translations:
+            Home: Inicio
+            Guides: Guías
+            Component Contracts: Contratos de componentes
+            Design Handoff: Entrega de diseño
+            WCAG Mapping: Mapeo WCAG
+            Integrations: Integraciones
+            SonarQube: SonarQube
+            CI/CD: CI/CD
+            Demo: Demo
+            A11yContractDemo: A11yContractDemo
+
+nav:
+  - Home: index.md
+  - Guides:
+      - Component Contracts: COMPONENT_CONTRACTS.md
+      - Design Handoff: DESIGN_HANDOFF.md
+      - WCAG Mapping: WCAG_MAPPING.md
+  - Integrations:
+      - SonarQube: SONAR_INTEGRATION.md
+      - CI/CD: CI_INTEGRATION.md
+  - Demo:
+      - A11yContractDemo: DEMO_APP.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/giovaninb/a11y-contract-kit

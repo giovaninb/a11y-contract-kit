@@ -1,0 +1,5 @@
+.build/
+.swiftpm/
+DerivedData/
+site/
+.a11y/partial/
