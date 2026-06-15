@@ -2,14 +2,39 @@ import A11yContractCore
 import Foundation
 
 enum DemoL10n {
-    static var tabProblems: String { tr("tab.problems") }
-    static var tabFixed: String { tr("tab.fixed") }
+    static var tabUIKit: String { tr("tab.uikit") }
+    static var tabCustom: String { tr("tab.custom") }
     static var tabSwiftUI: String { tr("tab.swiftui") }
     static var tabAudit: String { tr("tab.audit") }
 
-    static var screenProblems: String { tr("screen.problems") }
-    static var screenFixed: String { tr("screen.fixed") }
-    static var screenSwiftUI: String { tr("screen.swiftui") }
+    static var modeProblems: String { tr("demo.mode.problems") }
+    static var modeFixed: String { tr("demo.mode.fixed") }
+
+    static var uikitIntro: String { tr("uikit.intro") }
+    static var uikitHint: String { tr("uikit.hint") }
+    static var uikitScreenProblems: String { tr("uikit.screen.problems") }
+    static var uikitScreenFixed: String { tr("uikit.screen.fixed") }
+
+    static var customIntro: String { tr("custom.intro") }
+    static var customHint: String { tr("custom.hint") }
+    static var customScreenProblems: String { tr("custom.screen.problems") }
+    static var customScreenFixed: String { tr("custom.screen.fixed") }
+    static var customProblemsDetail: String { tr("custom.problems.detail") }
+    static var customProblemsOrderTitle: String { tr("custom.problems.order.title") }
+    static var customProblemsOrderWrong: String { tr("custom.problems.order.wrong") }
+    static var customProblemsIssueTitle: String { tr("custom.problems.issue.title") }
+    static var customProblemsIssueBody: String { tr("custom.problems.issue.body") }
+    static var customFixedDetail: String { tr("custom.fixed.detail") }
+    static var customFixedOrderTitle: String { tr("custom.fixed.order.title") }
+    static var customFixedOrderBody: String { tr("custom.fixed.order.body") }
+    static var customFixedStepsTitle: String { tr("custom.fixed.steps.title") }
+    static var customHeaderText: String { tr("custom.header.text") }
+    static var customItemText: String { tr("custom.item.text") }
+    static var customPriceText: String { tr("custom.price.text") }
+    static var customDeliveryText: String { tr("custom.delivery.text") }
+    static var customContinueLabel: String { tr("custom.continue.label") }
+    static var customContinueHint: String { tr("custom.continue.hint") }
+
     static var screenAudit: String { tr("screen.audit") }
 
     static var auditHeadline: String { tr("audit.headline") }
@@ -43,13 +68,8 @@ enum DemoL10n {
 
     static var swiftUIIntro: String { tr("swiftui.intro") }
     static var swiftUILinkHint: String { tr("swiftui.link_hint") }
-    static var swiftUIModeProblems: String { tr("swiftui.mode.problems") }
-    static var swiftUIModeFixed: String { tr("swiftui.mode.fixed") }
     static var swiftUIScreenProblems: String { tr("swiftui.screen.problems") }
     static var swiftUIScreenFixed: String { tr("swiftui.screen.fixed") }
-
-    static var swiftUIHeadline: String { tr("swiftui.headline") }
-    static var swiftUIDelete: String { tr("swiftui.delete") }
     static var swiftUICaption: String { tr("swiftui.caption") }
 
     static var deleteLabel: String { tr("a11y.delete_label") }
@@ -58,6 +78,10 @@ enum DemoL10n {
     static var favoriteHint: String { tr("a11y.favorite_hint") }
     static var statusLabel: String { tr("a11y.status_label") }
     static var statusValue: String { tr("a11y.status_value") }
+
+    static func customOrderStep(index: Int, text: String) -> String {
+        String(format: tr("custom.order.step"), index, text)
+    }
 
     static func severity(_ severity: A11ySeverity) -> String {
         tr("severity.\(severity.rawValue)")

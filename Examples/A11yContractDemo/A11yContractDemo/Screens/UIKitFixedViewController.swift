@@ -11,7 +11,6 @@ final class UIKitFixedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = DemoL10n.tabFixed
         configureComponents()
         applyContracts()
         layoutScreen()

@@ -89,7 +89,27 @@ enum DemoUIKitCardViews {
         return card
     }
 
-    private static func makeCardContainer(borderColor: UIColor = .separator) -> UIView {
+    static func makeInfoCard(title: String, body: String) -> UIView {
+        let card = makeCardContainer()
+        let content = UIStackView()
+        content.axis = .vertical
+        content.spacing = 8
+        content.translatesAutoresizingMaskIntoConstraints = false
+        card.addSubview(content)
+
+        NSLayoutConstraint.activate([
+            content.topAnchor.constraint(equalTo: card.topAnchor, constant: 14),
+            content.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 14),
+            content.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -14),
+            content.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -14),
+        ])
+
+        content.addArrangedSubview(makeSectionLabel(title))
+        content.addArrangedSubview(makeBodyLabel(body))
+        return card
+    }
+
+    static func makeCardContainer(borderColor: UIColor = .separator) -> UIView {
         let card = UIView()
         card.backgroundColor = .secondarySystemBackground
         card.layer.cornerRadius = 12

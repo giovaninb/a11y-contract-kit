@@ -2,34 +2,18 @@ import A11yContractCore
 import A11yContractSwiftUI
 import SwiftUI
 
-private enum SwiftUIDemoMode: String, CaseIterable, Identifiable {
-    case problems
-    case fixed
-
-    var id: String { rawValue }
-}
-
 struct SwiftUIDemoView: View {
-    @State private var mode: SwiftUIDemoMode = .problems
+    @State private var mode: DemoMode = .problems
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(DemoL10n.swiftUIIntro)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-
-                    Text(DemoL10n.swiftUILinkHint)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .padding(.bottom, 4)
-
-                    Picker("", selection: $mode) {
-                        Text(DemoL10n.swiftUIModeProblems).tag(SwiftUIDemoMode.problems)
-                        Text(DemoL10n.swiftUIModeFixed).tag(SwiftUIDemoMode.fixed)
-                    }
-                    .pickerStyle(.segmented)
+                    DemoModeHeader(
+                        intro: DemoL10n.swiftUIIntro,
+                        hint: DemoL10n.swiftUILinkHint,
+                        mode: $mode
+                    )
 
                     if mode == .problems {
                         SwiftUIProblemsPanel()
@@ -37,7 +21,8 @@ struct SwiftUIDemoView: View {
                         SwiftUIFixedPanel()
                     }
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.bottom)
             }
             .navigationTitle(mode == .problems ? DemoL10n.swiftUIScreenProblems : DemoL10n.swiftUIScreenFixed)
             .navigationBarTitleDisplayMode(.inline)

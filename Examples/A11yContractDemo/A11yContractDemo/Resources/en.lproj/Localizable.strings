@@ -1,15 +1,41 @@
-"tab.problems" = "Problems";
-"tab.fixed" = "Fixed";
+"tab.uikit" = "UIKit";
+"tab.custom" = "Custom";
 "tab.swiftui" = "SwiftUI";
 "tab.audit" = "Audit";
 
-"screen.problems" = "UIKit — Problems";
-"screen.fixed" = "UIKit — Fixed";
-"screen.swiftui" = "SwiftUI";
+"demo.mode.problems" = "Problems";
+"demo.mode.fixed" = "Fixed";
+
+"uikit.intro" = "Component contracts with applyA11y on UIKit views.";
+"uikit.hint" = "Switch between intentional issues and fixed contracts.";
+"uikit.screen.problems" = "UIKit — Problems";
+"uikit.screen.fixed" = "UIKit — Fixed";
+
+"custom.intro" = "Reading order: header, summary labels, then Continue.";
+"custom.hint" = "Contracts define each element; accessibilityElements defines VoiceOver order.";
+"custom.screen.problems" = "Custom — Problems";
+"custom.screen.fixed" = "Custom — Fixed";
+"custom.problems.detail" = "A summary header groups three labels, followed by a Continue button. The layout looks correct, but VoiceOver order is wrong.";
+"custom.problems.order.title" = "Wrong reading order";
+"custom.problems.order.wrong" = "accessibilityElements starts with Continue, so the button is announced before the summary.";
+"custom.problems.issue.title" = "Missing contracts";
+"custom.problems.issue.body" = "Continue has no accessible label. Header and labels have no applyA11y contracts.";
+"custom.fixed.detail" = "Each element has an applyA11y contract. accessibilityElements enforces the intended narrative order.";
+"custom.fixed.order.title" = "Configured order";
+"custom.fixed.order.body" = "view.accessibilityElements = [header, item, price, delivery, continue]";
+"custom.fixed.steps.title" = "VoiceOver sequence";
+"custom.order.step" = "%d. %@";
+"custom.header.text" = "Order summary";
+"custom.item.text" = "Item A";
+"custom.price.text" = "R$ 10.00";
+"custom.delivery.text" = "Delivery tomorrow";
+"custom.continue.label" = "Continue";
+"custom.continue.hint" = "Goes to the next step";
+
 "screen.audit" = "Audit";
 
 "audit.headline" = "Real-time audit";
-"audit.description" = "Runs the UIKit scanner on the Problems screen and shows the report.";
+"audit.description" = "Runs the UIKit scanner on the UIKit → Problems screen and shows the report.";
 "audit.run" = "Run audit";
 "audit.running" = "Auditing…";
 "audit.empty" = "No audit run yet.";
@@ -71,8 +97,8 @@
 "problems.card.font.rule.font" = "Dynamic Type not supported";
 
 "fixed.status" = "Status: Active";
-"fixed.caption" = "Compare with the Problems tab — same component IDs, now with applyA11y contracts.";
-"fixed.intro" = "Same components as the Problems tab, now fixed with explicit contracts.";
+"fixed.caption" = "Compare with Problems mode — same component IDs, now with applyA11y contracts.";
+"fixed.intro" = "Same components as Problems mode, now fixed with explicit contracts.";
 "fixed.contract_applied" = "Contract applied";
 "fixed.card.delete.title" = "Delete button";
 "fixed.card.delete.summary" = "label, hint, role .button, 44×44 pt, destructive action";
@@ -81,14 +107,10 @@
 "fixed.card.status.title" = "Status label";
 "fixed.card.status.summary" = "label + value, role .text, readable contrast, Dynamic Type";
 
-"swiftui.intro" = "Same scenario as the UIKit tabs: switch between Problems and Fixed.";
-"swiftui.link_hint" = "Uses the same component IDs: delete_button, favorite_button, status_label.";
-"swiftui.mode.problems" = "Problems";
-"swiftui.mode.fixed" = "Fixed";
+"swiftui.intro" = "Same component scenario as UIKit, using .a11yContract.";
+"swiftui.link_hint" = "Same IDs: delete_button, favorite_button, status_label.";
 "swiftui.screen.problems" = "SwiftUI — Problems";
 "swiftui.screen.fixed" = "SwiftUI — Fixed";
-"swiftui.headline" = "SwiftUI with explicit contract";
-"swiftui.delete" = "Delete item";
 "swiftui.caption" = "Validate .a11yContract declarations via A11yContractRegistry in unit tests.";
 
 "a11y.delete_label" = "Delete item";

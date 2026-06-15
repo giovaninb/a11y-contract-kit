@@ -1,6 +1,6 @@
 # A11yContractDemo
 
-App de demonstração do **A11yContractKit** com exemplos UIKit, SwiftUI e auditoria em tempo real.
+App de demonstração do **A11yContractKit** com exemplos UIKit, padrões customizados, SwiftUI e auditoria em tempo real.
 
 ## Abrir no Xcode
 
@@ -22,10 +22,12 @@ Se não tiver [XcodeGen](https://github.com/yonaskolb/XcodeGen) instalado, o rep
 
 | Aba | Descrição |
 |-----|-----------|
-| **Problemas** | Cartões por componente com ID, regra esperada e severidade |
-| **Corrigido** | Mesmos componentes com contratos `applyA11y` e resumo do que foi aplicado |
-| **SwiftUI** | Mesmo cenário UIKit (segmento Problemas / Corrigido) com `.a11yContract` |
-| **Auditoria** | Scanner UIKit na tela Problemas; toque em um achado para detalhes |
+| **UIKit** | Segmento Problemas / Corrigido com cartões e `applyA11y` |
+| **Custom** | Ordem de leitura (header + labels + Continuar) — Problemas vs Corrigido |
+| **SwiftUI** | Mesmo cenário UIKit com `.a11yContract` |
+| **Auditoria** | Scanner na tela UIKit → Problemas; toque em um achado para detalhes |
+
+Cada aba UIKit, Custom e SwiftUI usa o segmento **Problemas | Corrigido** no topo.
 
 ## Idiomas
 

@@ -10,7 +10,6 @@ final class UIKitProblemsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = DemoL10n.tabProblems
         configureComponents()
         layoutScreen()
     }
