@@ -55,6 +55,7 @@ plugins:
             Component Contracts: Contratos de componente
             Design Handoff: Handoff de design
             WCAG Mapping: Mapeamento WCAG
+            Fix Export: Exportação de correções
             Integrations: Integrações
             SonarQube: SonarQube
             CI/CD: CI/CD
@@ -72,6 +73,7 @@ plugins:
             Component Contracts: Contratos de componentes
             Design Handoff: Entrega de diseño
             WCAG Mapping: Mapeo WCAG
+            Fix Export: Exportación de correcciones
             Integrations: Integraciones
             SonarQube: SonarQube
             CI/CD: CI/CD
@@ -84,6 +86,7 @@ nav:
       - Component Contracts: COMPONENT_CONTRACTS.md
       - Design Handoff: DESIGN_HANDOFF.md
       - WCAG Mapping: WCAG_MAPPING.md
+      - Fix Export: FIX_EXPORT.md
   - Integrations:
       - SonarQube: SONAR_INTEGRATION.md
       - CI/CD: CI_INTEGRATION.md

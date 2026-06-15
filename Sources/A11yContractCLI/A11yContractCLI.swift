@@ -9,7 +9,7 @@ struct A11yContractCLI: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "a11y-contract",
         abstract: "Accessibility contract scanner for iOS projects.",
-        subcommands: [Scan.self, Baseline.self],
+        subcommands: [Scan.self, Baseline.self, ExportFixes.self],
         defaultSubcommand: Scan.self
     )
 }
@@ -129,6 +129,111 @@ extension A11yContractCLI {
                 throw ValidationError("Invalid severity: \(value)")
             }
             return severity
+        }
+    }
+
+    struct ExportFixes: ParsableCommand {
+        static let configuration = CommandConfiguration(
+            commandName: "export-fixes",
+            abstract: "Export selected accessibility fixes from an audit report.",
+            subcommands: [InitSelection.self, ApplySelection.self],
+            defaultSubcommand: ApplySelection.self
+        )
+
+        struct InitSelection: ParsableCommand {
+            static let configuration = CommandConfiguration(
+                commandName: "init",
+                abstract: "Generate a fix selection template from an audit report."
+            )
+
+            @Option(name: .long, help: "Path to a11y-report.json.")
+            var report: String
+
+            @Option(name: .long, help: "Output path for a11y-fix-selection.json.")
+            var output: String = ".a11y/a11y-fix-selection.json"
+
+            func run() throws {
+                let reportURL = URL(fileURLWithPath: report, isDirectory: false).standardizedFileURL
+                let outputURL = URL(fileURLWithPath: output, isDirectory: false).standardizedFileURL
+                let auditReport = try A11yFixExporter.loadReport(from: reportURL)
+                let written = try A11yFixExporter().writeSelectionTemplate(report: auditReport, toFile: outputURL)
+                print("Wrote fix selection template to \(written.path)")
+            }
+        }
+
+        struct ApplySelection: ParsableCommand {
+            static let configuration = CommandConfiguration(
+                commandName: "apply",
+                abstract: "Export fix snippets for selected issues."
+            )
+
+            @Option(name: .long, help: "Path to a11y-report.json.")
+            var report: String
+
+            @Option(name: .long, help: "Path to a11y-fix-selection.json.")
+            var selection: String?
+
+            @Option(name: .long, help: "Comma-separated issue IDs (alternative to --selection).")
+            var issues: String?
+
+            @Option(name: .long, help: "Fix style: uikit, framework, swiftui.")
+            var style: String = A11yFixStyle.framework.rawValue
+
+            @Option(name: .long, help: "Output format: markdown, swift.")
+            var format: String = A11yFixExportFormat.markdown.rawValue
+
+            @Option(name: .long, help: "Output directory.")
+            var output: String = ".a11y"
+
+            @Flag(name: .long, help: "Export one snippet per issue instead of grouping by component.")
+            var noGroupByComponent: Bool = false
+
+            func run() throws {
+                let reportURL = URL(fileURLWithPath: report, isDirectory: false).standardizedFileURL
+                let outputURL = URL(fileURLWithPath: output, isDirectory: true).standardizedFileURL
+                let auditReport = try A11yFixExporter.loadReport(from: reportURL)
+
+                let fixSelection: A11yFixSelection
+                if let selectionPath = selection {
+                    let manifest = try A11yFixExporter.loadSelectionManifest(
+                        from: URL(fileURLWithPath: selectionPath, isDirectory: false).standardizedFileURL
+                    )
+                    fixSelection = manifest.toSelection()
+                } else if let issuesList = issues {
+                    guard let parsedStyle = A11yFixStyle(rawValue: style.lowercased()) else {
+                        throw ValidationError("Invalid style: \(style)")
+                    }
+                    let issueIds = issuesList
+                        .split(separator: ",")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                        .filter { !$0.isEmpty }
+                    guard !issueIds.isEmpty else {
+                        throw ValidationError("Provide at least one issue ID via --issues.")
+                    }
+                    fixSelection = A11yFixSelection(
+                        style: parsedStyle,
+                        issueIds: issueIds,
+                        groupByComponent: !noGroupByComponent
+                    )
+                } else {
+                    throw ValidationError("Provide --selection or --issues.")
+                }
+
+                guard let exportFormat = A11yFixExportFormat(rawValue: format.lowercased()) else {
+                    throw ValidationError("Invalid format: \(format)")
+                }
+
+                let input = A11yFixBundleInput(report: auditReport, selection: fixSelection)
+                let written = try A11yFixExporter().writeFixBundle(
+                    input: input,
+                    format: exportFormat,
+                    to: outputURL
+                )
+
+                for url in written {
+                    print("Wrote fix bundle to \(url.path)")
+                }
+            }
         }
     }
 

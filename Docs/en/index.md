@@ -28,6 +28,7 @@ A11yContractKit helps teams detect, document, and prevent common mobile accessib
 ## Guides
 
 - [WCAG Mapping](WCAG_MAPPING.md) — rules ↔ WCAG criteria
+- [Fix Export](FIX_EXPORT.md) — cherry-pick fixes (UIKit, Framework, SwiftUI)
 - [Sonar Integration](SONAR_INTEGRATION.md) — SonarQube reports
 - [CI Integration](CI_INTEGRATION.md) — GitHub Actions and Azure DevOps
 
@@ -38,7 +39,7 @@ A11yContractKit helps teams detect, document, and prevent common mobile accessib
 | `A11yContractCore` | Models, rule engine, contrast, baseline |
 | `A11yContractUIKit` | UIView extensions, scanner, fluent API |
 | `A11yContractSwiftUI` | Modifier + registry |
-| `A11yContractReporter` | Markdown, JSON, Sonar, SARIF, JUnit |
+| `A11yContractReporter` | Markdown, JSON, Sonar, SARIF, JUnit, fix cherry-pick export |
 | `A11yContractTesting` | A11yAudit + XCTest helpers |
 | `A11yContractCLI` | `a11y-contract` command-line tool |
 

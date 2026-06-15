@@ -28,6 +28,7 @@ A11yContractKit ajuda times a detectar, documentar e prevenir problemas comuns d
 ## Guias
 
 - [Mapeamento WCAG](WCAG_MAPPING.md) — regras ↔ critérios WCAG
+- [Exportação de correções](FIX_EXPORT.md) — cherry-pick de fixes (UIKit, Framework, SwiftUI)
 - [Integração Sonar](SONAR_INTEGRATION.md) — relatórios no SonarQube
 - [Integração CI](CI_INTEGRATION.md) — GitHub Actions e Azure DevOps
 
@@ -38,7 +39,7 @@ A11yContractKit ajuda times a detectar, documentar e prevenir problemas comuns d
 | `A11yContractCore` | Modelos, rule engine, contraste, baseline |
 | `A11yContractUIKit` | Extensões UIView, scanner, API fluente |
 | `A11yContractSwiftUI` | Modifier + registry |
-| `A11yContractReporter` | Markdown, JSON, Sonar, SARIF, JUnit |
+| `A11yContractReporter` | Markdown, JSON, Sonar, SARIF, JUnit, exportação cherry-pick |
 | `A11yContractTesting` | A11yAudit + helpers XCTest |
 | `A11yContractCLI` | Ferramenta `a11y-contract` |
 
