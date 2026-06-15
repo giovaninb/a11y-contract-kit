@@ -13,11 +13,11 @@ struct UIKitDemoTabView: View {
                     mode: $mode
                 )
 
-                ViewControllerHost(
-                    viewController: mode == .problems
+                ViewControllerHost(identity: mode.rawValue) {
+                    mode == .problems
                         ? UIKitProblemsViewController()
                         : UIKitFixedViewController()
-                )
+                }
             }
             .navigationTitle(mode == .problems ? DemoL10n.uikitScreenProblems : DemoL10n.uikitScreenFixed)
             .navigationBarTitleDisplayMode(.inline)

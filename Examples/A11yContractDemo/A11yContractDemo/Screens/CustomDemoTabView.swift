@@ -13,11 +13,11 @@ struct CustomDemoTabView: View {
                     mode: $mode
                 )
 
-                ViewControllerHost(
-                    viewController: mode == .problems
+                ViewControllerHost(identity: mode.rawValue) {
+                    mode == .problems
                         ? CustomReadingOrderProblemsViewController()
                         : CustomReadingOrderFixedViewController()
-                )
+                }
             }
             .navigationTitle(mode == .problems ? DemoL10n.customScreenProblems : DemoL10n.customScreenFixed)
             .navigationBarTitleDisplayMode(.inline)
