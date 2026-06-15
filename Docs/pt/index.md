@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/logo.png" alt="Logo A11yContractKit" width="480">
+</p>
+
 # A11yContractKit
 
 **A11yContractKit não é uma ferramenta mágica de conformidade WCAG.**
