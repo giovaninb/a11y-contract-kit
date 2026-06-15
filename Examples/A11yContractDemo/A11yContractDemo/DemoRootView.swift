@@ -5,31 +5,29 @@ struct DemoRootView: View {
     var body: some View {
         TabView {
             DemoScreenTab(
-                title: "UIKit — Problemas",
-                systemImage: "exclamationmark.triangle",
+                title: DemoL10n.screenProblems,
                 viewController: UIKitProblemsViewController()
             )
             .tabItem {
-                Label("Problemas", systemImage: "exclamationmark.triangle")
+                Label(DemoL10n.tabProblems, systemImage: "exclamationmark.triangle")
             }
 
             DemoScreenTab(
-                title: "UIKit — Corrigido",
-                systemImage: "checkmark.circle",
+                title: DemoL10n.screenFixed,
                 viewController: UIKitFixedViewController()
             )
             .tabItem {
-                Label("Corrigido", systemImage: "checkmark.circle")
+                Label(DemoL10n.tabFixed, systemImage: "checkmark.circle")
             }
 
             SwiftUIDemoView()
                 .tabItem {
-                    Label("SwiftUI", systemImage: "swift")
+                    Label(DemoL10n.tabSwiftUI, systemImage: "swift")
                 }
 
             AuditTabView()
                 .tabItem {
-                    Label("Auditoria", systemImage: "doc.text.magnifyingglass")
+                    Label(DemoL10n.tabAudit, systemImage: "doc.text.magnifyingglass")
                 }
         }
     }
@@ -37,7 +35,6 @@ struct DemoRootView: View {
 
 private struct DemoScreenTab: View {
     let title: String
-    let systemImage: String
     let viewController: UIViewController
 
     var body: some View {

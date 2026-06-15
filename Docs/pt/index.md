@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../assets/logo.png" alt="Logo A11yContractKit" width="480">
+  <img src="assets/logo.png" alt="Logo A11yContractKit" width="480">
 </p>
 
 # A11yContractKit

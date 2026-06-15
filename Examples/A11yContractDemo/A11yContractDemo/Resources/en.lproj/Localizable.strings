@@ -1,0 +1,99 @@
+"tab.problems" = "Problems";
+"tab.fixed" = "Fixed";
+"tab.swiftui" = "SwiftUI";
+"tab.audit" = "Audit";
+
+"screen.problems" = "UIKit — Problems";
+"screen.fixed" = "UIKit — Fixed";
+"screen.swiftui" = "SwiftUI";
+"screen.audit" = "Audit";
+
+"audit.headline" = "Real-time audit";
+"audit.description" = "Runs the UIKit scanner on the Problems screen and shows the report.";
+"audit.run" = "Run audit";
+"audit.running" = "Auditing…";
+"audit.empty" = "No audit run yet.";
+"audit.tap_hint" = "Tap an issue to see full details.";
+"audit.findings" = "Findings";
+"audit.detail.title" = "Issue details";
+"audit.detail.rule" = "Rule";
+"audit.detail.component" = "Component";
+"audit.detail.message" = "Description";
+"audit.detail.wcag" = "WCAG criteria";
+"audit.detail.suggested_fix" = "Suggested fix";
+"audit.detail.owner" = "Suggested owner";
+"audit.detail.location" = "Location";
+"audit.detail.not_available" = "Not available";
+
+"severity.critical" = "Critical";
+"severity.major" = "Major";
+"severity.minor" = "Minor";
+"severity.info" = "Info";
+
+"owner.design" = "Design";
+"owner.development" = "Development";
+"owner.qa" = "QA";
+"owner.product" = "Product";
+"owner.unknown" = "Unknown";
+
+"issue.missing_label" = "Interactive component without an accessible label.";
+"issue.missing_role" = "Interactive component without an appropriate accessibility role.";
+"issue.fixed_font" = "Text component does not support Dynamic Type.";
+"issue.low_contrast" = "Insufficient color contrast (%@:1). Minimum required: %@.";
+"issue.touch_target_hig" = "Touch target is %@×%@ pt. Apple HIG recommends at least %@×%@ pt.";
+"issue.touch_target_wcag" = "Touch target is %@×%@ pt. Minimum required: %@×%@ pt.";
+
+"fix.fixed_font" = "Set adjustsFontForContentSizeCategory = true or use text styles that scale with content size.";
+"fix.low_contrast" = "Adjust foreground and background colors to meet WCAG contrast requirements.";
+"fix.touch_target" = "Increase the interactive area to at least %@×%@ points.";
+
+"problems.low_contrast_text" = "Text with insufficient contrast";
+"problems.fixed_font_text" = "Fixed font without Dynamic Type";
+"problems.caption" = "Tip: open the Audit tab to generate the full report and tap any finding for details.";
+"problems.intro" = "Each card shows a real component and the issues the scanner should report.";
+"problems.component_id" = "Component ID";
+"problems.expected_rules" = "Expected rules";
+"problems.card.delete.title" = "Delete button (icon only)";
+"problems.card.delete.detail" = "No accessibilityLabel or button trait. Touch target is 28×28 pt.";
+"problems.card.delete.rule.label" = "Missing accessible label";
+"problems.card.delete.rule.role" = "Missing role/trait";
+"problems.card.delete.rule.target" = "Touch target too small";
+"problems.card.favorite.title" = "Favorite button (icon only)";
+"problems.card.favorite.detail" = "Same issues as the delete button: no label, no role, small target.";
+"problems.card.favorite.rule.label" = "Missing accessible label";
+"problems.card.favorite.rule.role" = "Missing role/trait";
+"problems.card.favorite.rule.target" = "Touch target too small";
+"problems.card.contrast.title" = "Low-contrast label";
+"problems.card.contrast.detail" = "Light gray text on white background fails WCAG contrast.";
+"problems.card.contrast.rule.contrast" = "Insufficient color contrast";
+"problems.card.font.title" = "Fixed-size text";
+"problems.card.font.detail" = "Font size is hard-coded and does not scale with Dynamic Type.";
+"problems.card.font.rule.font" = "Dynamic Type not supported";
+
+"fixed.status" = "Status: Active";
+"fixed.caption" = "Compare with the Problems tab — same component IDs, now with applyA11y contracts.";
+"fixed.intro" = "Same components as the Problems tab, now fixed with explicit contracts.";
+"fixed.contract_applied" = "Contract applied";
+"fixed.card.delete.title" = "Delete button";
+"fixed.card.delete.summary" = "label, hint, role .button, 44×44 pt, destructive action";
+"fixed.card.favorite.title" = "Favorite button";
+"fixed.card.favorite.summary" = "label, hint, role .button, 44×44 pt";
+"fixed.card.status.title" = "Status label";
+"fixed.card.status.summary" = "label + value, role .text, readable contrast, Dynamic Type";
+
+"swiftui.intro" = "Same scenario as the UIKit tabs: switch between Problems and Fixed.";
+"swiftui.link_hint" = "Uses the same component IDs: delete_button, favorite_button, status_label.";
+"swiftui.mode.problems" = "Problems";
+"swiftui.mode.fixed" = "Fixed";
+"swiftui.screen.problems" = "SwiftUI — Problems";
+"swiftui.screen.fixed" = "SwiftUI — Fixed";
+"swiftui.headline" = "SwiftUI with explicit contract";
+"swiftui.delete" = "Delete item";
+"swiftui.caption" = "Validate .a11yContract declarations via A11yContractRegistry in unit tests.";
+
+"a11y.delete_label" = "Delete item";
+"a11y.delete_hint" = "Permanently removes this item";
+"a11y.favorite_label" = "Favorite";
+"a11y.favorite_hint" = "Adds this item to favorites";
+"a11y.status_label" = "Status";
+"a11y.status_value" = "Active";

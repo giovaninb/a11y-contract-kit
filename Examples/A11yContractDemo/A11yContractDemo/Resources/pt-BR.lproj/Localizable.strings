@@ -1,0 +1,99 @@
+"tab.problems" = "Problemas";
+"tab.fixed" = "Corrigido";
+"tab.swiftui" = "SwiftUI";
+"tab.audit" = "Auditoria";
+
+"screen.problems" = "UIKit — Problemas";
+"screen.fixed" = "UIKit — Corrigido";
+"screen.swiftui" = "SwiftUI";
+"screen.audit" = "Auditoria";
+
+"audit.headline" = "Auditoria em tempo real";
+"audit.description" = "Executa o scanner UIKit na tela Problemas e exibe o relatório.";
+"audit.run" = "Rodar auditoria";
+"audit.running" = "Auditando…";
+"audit.empty" = "Nenhuma auditoria executada ainda.";
+"audit.tap_hint" = "Toque em um item para ver os detalhes completos.";
+"audit.findings" = "Achados";
+"audit.detail.title" = "Detalhes do achado";
+"audit.detail.rule" = "Regra";
+"audit.detail.component" = "Componente";
+"audit.detail.message" = "Descrição";
+"audit.detail.wcag" = "Critérios WCAG";
+"audit.detail.suggested_fix" = "Correção sugerida";
+"audit.detail.owner" = "Responsável sugerido";
+"audit.detail.location" = "Localização";
+"audit.detail.not_available" = "Não disponível";
+
+"severity.critical" = "Crítico";
+"severity.major" = "Importante";
+"severity.minor" = "Menor";
+"severity.info" = "Informativo";
+
+"owner.design" = "Design";
+"owner.development" = "Desenvolvimento";
+"owner.qa" = "QA";
+"owner.product" = "Produto";
+"owner.unknown" = "Desconhecido";
+
+"issue.missing_label" = "Componente interativo sem rótulo acessível.";
+"issue.missing_role" = "Componente interativo sem papel/trait de acessibilidade adequado.";
+"issue.fixed_font" = "Componente de texto não suporta Dynamic Type.";
+"issue.low_contrast" = "Contraste de cor insuficiente (%@:1). Mínimo exigido: %@.";
+"issue.touch_target_hig" = "Área de toque de %@×%@ pt. A Apple HIG recomenda pelo menos %@×%@ pt.";
+"issue.touch_target_wcag" = "Área de toque de %@×%@ pt. Tamanho mínimo exigido: %@×%@ pt.";
+
+"fix.fixed_font" = "Defina adjustsFontForContentSizeCategory = true ou use estilos de texto que escalam com o tamanho do conteúdo.";
+"fix.low_contrast" = "Ajuste as cores de primeiro plano e fundo para atender aos requisitos de contraste WCAG.";
+"fix.touch_target" = "Aumente a área interativa para pelo menos %@×%@ pontos.";
+
+"problems.low_contrast_text" = "Texto com contraste insuficiente";
+"problems.fixed_font_text" = "Fonte fixa sem Dynamic Type";
+"problems.caption" = "Dica: abra a aba Auditoria para gerar o relatório completo e toque em um achado para ver detalhes.";
+"problems.intro" = "Cada cartão mostra um componente real e os problemas que o scanner deve reportar.";
+"problems.component_id" = "ID do componente";
+"problems.expected_rules" = "Regras esperadas";
+"problems.card.delete.title" = "Botão excluir (só ícone)";
+"problems.card.delete.detail" = "Sem accessibilityLabel nem trait de botão. Área de toque 28×28 pt.";
+"problems.card.delete.rule.label" = "Sem rótulo acessível";
+"problems.card.delete.rule.role" = "Sem papel/trait";
+"problems.card.delete.rule.target" = "Área de toque pequena";
+"problems.card.favorite.title" = "Botão favoritar (só ícone)";
+"problems.card.favorite.detail" = "Mesmos problemas do botão excluir: sem label, sem role, alvo pequeno.";
+"problems.card.favorite.rule.label" = "Sem rótulo acessível";
+"problems.card.favorite.rule.role" = "Sem papel/trait";
+"problems.card.favorite.rule.target" = "Área de toque pequena";
+"problems.card.contrast.title" = "Texto com baixo contraste";
+"problems.card.contrast.detail" = "Cinza claro sobre fundo branco não atende o contraste WCAG.";
+"problems.card.contrast.rule.contrast" = "Contraste de cor insuficiente";
+"problems.card.font.title" = "Texto com fonte fixa";
+"problems.card.font.detail" = "Tamanho hard-coded e não escala com Dynamic Type.";
+"problems.card.font.rule.font" = "Dynamic Type não suportado";
+
+"fixed.status" = "Status: Ativo";
+"fixed.caption" = "Compare com a aba Problemas — mesmos IDs de componente, agora com contratos applyA11y.";
+"fixed.intro" = "Mesmos componentes da aba Problemas, agora corrigidos com contratos explícitos.";
+"fixed.contract_applied" = "Contrato aplicado";
+"fixed.card.delete.title" = "Botão excluir";
+"fixed.card.delete.summary" = "label, hint, role .button, 44×44 pt, ação destrutiva";
+"fixed.card.favorite.title" = "Botão favoritar";
+"fixed.card.favorite.summary" = "label, hint, role .button, 44×44 pt";
+"fixed.card.status.title" = "Label de status";
+"fixed.card.status.summary" = "label + value, role .text, contraste legível, Dynamic Type";
+
+"swiftui.intro" = "Mesmo cenário das abas UIKit: alterne entre Problemas e Corrigido.";
+"swiftui.link_hint" = "Usa os mesmos IDs: delete_button, favorite_button, status_label.";
+"swiftui.mode.problems" = "Problemas";
+"swiftui.mode.fixed" = "Corrigido";
+"swiftui.screen.problems" = "SwiftUI — Problemas";
+"swiftui.screen.fixed" = "SwiftUI — Corrigido";
+"swiftui.headline" = "SwiftUI com contrato explícito";
+"swiftui.delete" = "Excluir item";
+"swiftui.caption" = "Valide declarações .a11yContract via A11yContractRegistry em testes unitários.";
+
+"a11y.delete_label" = "Excluir item";
+"a11y.delete_hint" = "Remove este item permanentemente";
+"a11y.favorite_label" = "Favoritar";
+"a11y.favorite_hint" = "Adiciona este item aos favoritos";
+"a11y.status_label" = "Status";
+"a11y.status_value" = "Ativo";

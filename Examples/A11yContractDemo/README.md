@@ -22,10 +22,19 @@ Se não tiver [XcodeGen](https://github.com/yonaskolb/XcodeGen) instalado, o rep
 
 | Aba | Descrição |
 |-----|-----------|
-| **Problemas** | Botões sem label, touch target pequeno, contraste baixo |
-| **Corrigido** | Mesmos componentes com `applyA11y` |
-| **SwiftUI** | Modifier `.a11yContract` |
-| **Auditoria** | Roda `A11yAudit` e lista issues |
+| **Problemas** | Cartões por componente com ID, regra esperada e severidade |
+| **Corrigido** | Mesmos componentes com contratos `applyA11y` e resumo do que foi aplicado |
+| **SwiftUI** | Mesmo cenário UIKit (segmento Problemas / Corrigido) com `.a11yContract` |
+| **Auditoria** | Scanner UIKit na tela Problemas; toque em um achado para detalhes |
+
+## Idiomas
+
+O app segue o idioma do simulador/dispositivo:
+
+- **Português (pt-BR)** — padrão para usuários no Brasil
+- **English (en)** — quando o sistema está em inglês
+
+Abas, textos das telas e mensagens da auditoria usam o mesmo idioma.
 
 ## Testes
 

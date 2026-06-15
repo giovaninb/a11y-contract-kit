@@ -5,51 +5,75 @@ import SwiftUI
 
 struct AuditTabView: View {
     @State private var report: A11yReport?
-    @State private var markdown: String = ""
     @State private var isRunning = false
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Auditoria em tempo real")
-                    .font(.headline)
-
-                Text("Executa o scanner UIKit na tela com problemas e exibe o relatório.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                Button(isRunning ? "Auditando…" : "Rodar auditoria") {
-                    runAudit()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(isRunning)
-
+            Group {
                 if let report {
-                    SummaryView(summary: report.summary)
-
-                    List(report.issues) { issue in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(issue.severity.displayName)
-                                .font(.caption.bold())
-                                .foregroundStyle(color(for: issue.severity))
-                            Text(issue.message)
-                                .font(.subheadline)
-                            Text(issue.ruleId)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.vertical, 4)
+                    List {
+                        introSection
+                        summarySection(report.summary)
+                        findingsSection(report.issues)
                     }
                 } else {
-                    Spacer()
-                    Text("Nenhuma auditoria executada ainda.")
-                        .foregroundStyle(.secondary)
-                    Spacer()
+                    List {
+                        introSection
+                        Section {
+                            Text(DemoL10n.auditEmpty)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
             }
-            .padding()
-            .navigationTitle("Auditoria")
+            .navigationTitle(DemoL10n.screenAudit)
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var introSection: some View {
+        Section {
+            Text(DemoL10n.auditHeadline)
+                .font(.headline)
+
+            Text(DemoL10n.auditDescription)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            Button(isRunning ? DemoL10n.auditRunning : DemoL10n.auditRun) {
+                runAudit()
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isRunning)
+        }
+    }
+
+    private func summarySection(_ summary: A11ySummary) -> some View {
+        Section {
+            SummaryView(summary: summary)
+                .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .listRowBackground(Color.clear)
+        }
+    }
+
+    @ViewBuilder
+    private func findingsSection(_ issues: [A11yIssue]) -> some View {
+        Section {
+            Text(DemoL10n.auditTapHint)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        } header: {
+            Text(DemoL10n.auditFindings)
+        }
+
+        Section {
+            ForEach(issues) { issue in
+                NavigationLink {
+                    AuditIssueDetailView(issue: issue)
+                } label: {
+                    AuditIssueRow(issue: issue)
+                }
+            }
         }
     }
 
@@ -61,14 +85,28 @@ struct AuditTabView: View {
         viewController.loadViewIfNeeded()
 
         let issues = UIKitA11yScanner().scan(rootView: viewController.view)
-        let result = A11yReport(projectName: "A11yContractDemo", issues: issues)
-        report = result
-
-        if let markdown = try? MarkdownA11yReporter().generate(report: result) {
-            self.markdown = markdown
-        }
-
+        report = A11yReport(projectName: "A11yContractDemo", issues: issues)
         isRunning = false
+    }
+}
+
+private struct AuditIssueRow: View {
+    let issue: A11yIssue
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(DemoL10n.severity(issue.severity))
+                .font(.caption.bold())
+                .foregroundStyle(color(for: issue.severity))
+
+            Text(DemoIssuePresentation.localizedMessage(for: issue))
+                .font(.subheadline)
+
+            Text(issue.ruleId)
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
     }
 
     private func color(for severity: A11ySeverity) -> Color {
@@ -86,29 +124,38 @@ private struct SummaryView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            SummaryBadge(title: "Critical", count: summary.critical, color: .red)
-            SummaryBadge(title: "Major", count: summary.major, color: .orange)
-            SummaryBadge(title: "Minor", count: summary.minor, color: .yellow)
-            SummaryBadge(title: "Info", count: summary.info, color: .blue)
+            SummaryBadge(severity: .critical, count: summary.critical)
+            SummaryBadge(severity: .major, count: summary.major)
+            SummaryBadge(severity: .minor, count: summary.minor)
+            SummaryBadge(severity: .info, count: summary.info)
         }
     }
 }
 
 private struct SummaryBadge: View {
-    let title: String
+    let severity: A11ySeverity
     let count: Int
-    let color: Color
 
     var body: some View {
         VStack {
             Text("\(count)")
                 .font(.title3.bold())
-            Text(title)
+            Text(DemoL10n.severity(severity))
                 .font(.caption2)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(8)
         .background(color.opacity(0.15))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var color: Color {
+        switch severity {
+        case .critical: return .red
+        case .major: return .orange
+        case .minor: return .yellow
+        case .info: return .blue
+        }
     }
 }

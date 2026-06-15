@@ -11,49 +11,57 @@ final class UIKitFixedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = "Corrigido"
-        layoutComponents()
+        title = DemoL10n.tabFixed
+        configureComponents()
         applyContracts()
+        layoutScreen()
     }
 
-    private func layoutComponents() {
-        deleteButton.frame = CGRect(x: 24, y: 120, width: 44, height: 44)
+    private func configureComponents() {
         deleteButton.setImage(UIImage(systemName: "trash"), for: .normal)
         deleteButton.tintColor = .systemRed
-        view.addSubview(deleteButton)
+        deleteButton.accessibilityIdentifier = "delete_button"
+        NSLayoutConstraint.activate([
+            deleteButton.widthAnchor.constraint(equalToConstant: 44),
+            deleteButton.heightAnchor.constraint(equalToConstant: 44),
+        ])
 
-        favoriteButton.frame = CGRect(x: 88, y: 120, width: 44, height: 44)
         favoriteButton.setImage(UIImage(systemName: "heart"), for: .normal)
         favoriteButton.tintColor = .systemPink
-        view.addSubview(favoriteButton)
+        favoriteButton.accessibilityIdentifier = "favorite_button"
+        NSLayoutConstraint.activate([
+            favoriteButton.widthAnchor.constraint(equalToConstant: 44),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 44),
+        ])
 
-        statusLabel.frame = CGRect(x: 24, y: 200, width: view.bounds.width - 48, height: 44)
-        statusLabel.autoresizingMask = [.flexibleWidth]
-        statusLabel.text = "Status: Ativo"
+        statusLabel.text = DemoL10n.fixedStatus
+        statusLabel.accessibilityIdentifier = "status_label"
         statusLabel.textColor = .label
         statusLabel.backgroundColor = .secondarySystemBackground
         statusLabel.font = .preferredFont(forTextStyle: .body)
         statusLabel.adjustsFontForContentSizeCategory = true
-        view.addSubview(statusLabel)
+        statusLabel.numberOfLines = 0
+    }
 
-        let caption = UILabel(frame: CGRect(x: 24, y: 260, width: view.bounds.width - 48, height: 80))
-        caption.autoresizingMask = [.flexibleWidth]
-        caption.numberOfLines = 0
-        caption.font = .preferredFont(forTextStyle: .footnote)
-        caption.textColor = .secondaryLabel
-        caption.text = """
-        Contratos aplicados com applyA11y:
-        labels, hints, roles e touch target adequado.
-        """
-        view.addSubview(caption)
+    private func layoutScreen() {
+        let (_, stack) = DemoUIKitCardViews.makeScrollContainer(in: view)
+        stack.addArrangedSubview(DemoUIKitCardViews.makeIntroLabel(text: DemoL10n.fixedIntro))
+
+        let examples = DemoComponentCatalog.fixExamples
+
+        stack.addArrangedSubview(DemoUIKitCardViews.makeFixCard(example: examples[0], demoView: deleteButton))
+        stack.addArrangedSubview(DemoUIKitCardViews.makeFixCard(example: examples[1], demoView: favoriteButton))
+        stack.addArrangedSubview(DemoUIKitCardViews.makeFixCard(example: examples[2], demoView: statusLabel))
+
+        stack.addArrangedSubview(DemoUIKitCardViews.makeIntroLabel(text: DemoL10n.fixedCaption))
     }
 
     private func applyContracts() {
         deleteButton.applyA11y(
             A11ySpec(
                 id: "delete_button",
-                label: "Excluir item",
-                hint: "Remove este item permanentemente",
+                label: DemoL10n.deleteLabel,
+                hint: DemoL10n.deleteHint,
                 role: .button,
                 wcag: [.nameRoleValue, .targetSize],
                 actionType: .destructive
@@ -63,8 +71,8 @@ final class UIKitFixedViewController: UIViewController {
         favoriteButton.applyA11y(
             A11ySpec(
                 id: "favorite_button",
-                label: "Favoritar",
-                hint: "Adiciona este item aos favoritos",
+                label: DemoL10n.favoriteLabel,
+                hint: DemoL10n.favoriteHint,
                 role: .button,
                 wcag: [.nameRoleValue, .targetSize]
             )
@@ -73,8 +81,8 @@ final class UIKitFixedViewController: UIViewController {
         statusLabel.applyA11y(
             A11ySpec(
                 id: "status_label",
-                label: "Status",
-                value: "Ativo",
+                label: DemoL10n.statusLabel,
+                value: DemoL10n.statusValue,
                 role: .text,
                 wcag: [.useOfColor]
             )

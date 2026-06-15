@@ -1,6 +1,7 @@
 name: A11yContractDemo
 options:
   bundleIdPrefix: com.a11ycontractkit
+  developmentLanguage: en
   deploymentTarget:
     iOS: "15.0"
   xcodeVersion: "15.0"
@@ -13,6 +14,8 @@ targets:
     platform: iOS
     sources:
       - A11yContractDemo
+    resources:
+      - A11yContractDemo/Resources
     dependencies:
       - package: A11yContractKit
         product: A11yContractCore
