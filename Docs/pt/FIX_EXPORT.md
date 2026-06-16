@@ -32,7 +32,7 @@ make uikit-verify  # re-scan
 make uikit-reset   # recomeçar o example
 ```
 
-Para projetos grandes (dezenas de arquivos), use **HTML só para revisar** e **`make patch-all`** para corrigir tudo de uma vez — sem downloads nem seleção manual de issue IDs.
+Para projetos grandes (dezenas de arquivos): selecione estilo e achados no HTML, clique **Salvar seleção** (grava `a11y-fix-selection.json` na pasta `.a11y`) e rode **`make patch-all`** — sem copiar comandos.
 
 ## Quando usar
 
@@ -70,15 +70,20 @@ a11y-contract export-fixes view \
 open .a11y/a11y-report.html
 ```
 
-A página HTML agrupa achados por arquivo e mostra snippets por estilo. Para corrigir em massa, use o terminal (não o botão do navegador).
+A página HTML agrupa achados por arquivo e mostra snippets por estilo. Clique **Salvar seleção** para gravar `a11y-fix-selection.json` na pasta `.a11y` (na primeira vez, escolha essa pasta no diálogo).
 
 ### 3. Aplicar correções nos arquivos
 
-**Todos os achados com arquivo (recomendado para projetos grandes):**
+**Com seleção do HTML (recomendado):**
 
 ```bash
 make patch-all
-# ou:
+# lê .a11y/a11y-fix-selection.json automaticamente (estilo + achados selecionados)
+```
+
+**Todos os achados com arquivo (sem HTML):**
+
+```bash
 a11y-contract export-fixes patch \
   --report .a11y/a11y-report.json \
   --all \

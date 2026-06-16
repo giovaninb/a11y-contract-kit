@@ -1,5 +1,6 @@
 #if canImport(UIKit)
 import A11yContractCore
+import A11yContractUIKit
 import UIKit
 
 /// Botão de exclusão intencionalmente problemático para gerar achados de auditoria.

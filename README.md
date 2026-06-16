@@ -259,7 +259,7 @@ pod 'A11yContractKit/Testing', :path => '../a11y-contract-kit'
 **Git remoto:**
 
 ```ruby
-pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.1.1'
+pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.1.2'
 ```
 
 Subspecs disponíveis (espelham `Sources/`):

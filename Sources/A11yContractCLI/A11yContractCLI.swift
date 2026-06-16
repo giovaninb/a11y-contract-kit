@@ -303,7 +303,7 @@ extension A11yContractCLI {
                 let reportURL = URL(fileURLWithPath: report, isDirectory: false).standardizedFileURL
                 let projectURL = URL(fileURLWithPath: project, isDirectory: true).standardizedFileURL
                 let auditReport = try A11yFixExporter.loadReport(from: reportURL)
-                let fixSelection = try resolveSelection(report: auditReport)
+                let fixSelection = try resolveSelection(report: auditReport, reportURL: reportURL)
 
                 let outcomes = try A11yFixExporter().applyPatches(
                     report: auditReport,
@@ -349,9 +349,20 @@ extension A11yContractCLI {
                 }
             }
 
-            private func resolveSelection(report: A11yReport) throws -> A11yFixSelection {
+            private func resolveSelection(report: A11yReport, reportURL: URL) throws -> A11yFixSelection {
                 let parsedStyle = A11yFixStyle(rawValue: style.lowercased()) ?? .framework
                 let groupByComponent = !noGroupByComponent
+
+                if let selectionPath = selection {
+                    let manifest = try A11yFixExporter.loadSelectionManifest(
+                        from: URL(fileURLWithPath: selectionPath, isDirectory: false).standardizedFileURL
+                    )
+                    return manifest.toSelection()
+                }
+
+                if let savedSelection = try A11yFixExporter.loadSelectionManifestIfPresent(nearReport: reportURL) {
+                    return savedSelection
+                }
 
                 if all {
                     guard let selection = A11yFixExporter.selectionForAllPatchable(
@@ -362,13 +373,6 @@ extension A11yContractCLI {
                         throw ValidationError("No patchable issues with source files in the report.")
                     }
                     return selection
-                }
-
-                if let selectionPath = selection {
-                    let manifest = try A11yFixExporter.loadSelectionManifest(
-                        from: URL(fileURLWithPath: selectionPath, isDirectory: false).standardizedFileURL
-                    )
-                    return manifest.toSelection()
                 }
 
                 if let issuesList = issues {
@@ -389,7 +393,15 @@ extension A11yContractCLI {
                     )
                 }
 
-                throw ValidationError("Provide --all, --selection, or --issues.")
+                if let fallback = A11yFixExporter.selectionForAllPatchable(
+                    report: report,
+                    style: parsedStyle,
+                    groupByComponent: groupByComponent
+                ) {
+                    return fallback
+                }
+
+                throw ValidationError("No patchable issues with source files in the report.")
             }
 
             private func openInEditor(_ url: URL) throws {

@@ -64,6 +64,20 @@ public struct A11yFixExporter {
         return try decoder.decode(A11yFixSelectionManifest.self, from: data)
     }
 
+    public static func selectionManifestURL(nearReport reportURL: URL) -> URL {
+        reportURL.deletingLastPathComponent()
+            .appendingPathComponent(FixSelectionTemplateExporter.outputFileName)
+    }
+
+    public static func loadSelectionManifestIfPresent(nearReport reportURL: URL) throws -> A11yFixSelection? {
+        let url = selectionManifestURL(nearReport: reportURL)
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let manifest = try loadSelectionManifest(from: url)
+        let selection = manifest.toSelection()
+        guard !selection.issueIds.isEmpty else { return nil }
+        return selection
+    }
+
     @discardableResult
     public func applyPatches(
         report: A11yReport,

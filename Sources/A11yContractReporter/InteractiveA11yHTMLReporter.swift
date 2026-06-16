@@ -582,6 +582,112 @@ public struct InteractiveA11yHTMLReporter {
           }).join('\\n\\n');
         }
 
+        function buildSelectionManifest() {
+          return {
+            style: currentStyle,
+            groupByComponent: groupByComponent,
+            issues: data.items.map(item => ({
+              id: item.id,
+              ruleId: item.ruleId,
+              componentId: item.componentId,
+              severity: item.severity,
+              selected: item.selected
+            }))
+          };
+        }
+
+        function downloadJSON(filename, obj) {
+          const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          link.click();
+          URL.revokeObjectURL(url);
+        }
+
+        const HANDLE_DB = 'a11y-contract-kit';
+        const HANDLE_STORE = 'handles';
+        const OUTPUT_DIR_KEY = 'output-dir';
+
+        function openHandleDB() {
+          return new Promise((resolve, reject) => {
+            const request = indexedDB.open(HANDLE_DB, 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onupgradeneeded = (event) => {
+              event.target.result.createObjectStore(HANDLE_STORE);
+            };
+          });
+        }
+
+        async function getStoredDirectoryHandle() {
+          if (!('indexedDB' in window)) return null;
+          try {
+            const db = await openHandleDB();
+            return await new Promise((resolve, reject) => {
+              const tx = db.transaction(HANDLE_STORE, 'readonly');
+              const req = tx.objectStore(HANDLE_STORE).get(OUTPUT_DIR_KEY);
+              req.onsuccess = () => resolve(req.result || null);
+              req.onerror = () => reject(req.error);
+            });
+          } catch (_) {
+            return null;
+          }
+        }
+
+        async function storeDirectoryHandle(handle) {
+          const db = await openHandleDB();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLE_STORE, 'readwrite');
+            tx.objectStore(HANDLE_STORE).put(handle, OUTPUT_DIR_KEY);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+          });
+        }
+
+        async function writeManifestToDirectory(dirHandle, manifest) {
+          const fileName = 'a11y-fix-selection.json';
+          const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+          const writable = await fileHandle.createWritable();
+          await writable.write(JSON.stringify(manifest, null, 2));
+          await writable.close();
+        }
+
+        function selectionOutputLabel() {
+          return data.selectionOutputPath || '.a11y/a11y-fix-selection.json';
+        }
+
+        async function saveSelectionToDisk(manifest) {
+          if (window.showDirectoryPicker && window.isSecureContext) {
+            try {
+              let dirHandle = await getStoredDirectoryHandle();
+              if (dirHandle) {
+                const permission = await dirHandle.requestPermission({ mode: 'readwrite' });
+                if (permission !== 'granted') dirHandle = null;
+              }
+              if (!dirHandle) {
+                dirHandle = await window.showDirectoryPicker();
+                await storeDirectoryHandle(dirHandle);
+              }
+              await writeManifestToDirectory(dirHandle, manifest);
+              return 'disk';
+            } catch (error) {
+              if (error && error.name === 'AbortError') return 'cancelled';
+            }
+          }
+
+          downloadJSON('a11y-fix-selection.json', manifest);
+          return 'download';
+        }
+
+        function patchMakeTargetName() {
+          if (data.reportPath && data.reportPath.includes('UIKitExample')) {
+            return 'make uikit-patch';
+          }
+          return 'make patch-all';
+        }
+
         async function copyText(text) {
           try {
             await navigator.clipboard.writeText(text);
@@ -618,20 +724,6 @@ public struct InteractiveA11yHTMLReporter {
           showToast(copied ? t('toast_copied') : t('toast_copy_manual'));
         });
 
-        function buildPatchCommand(multiline) {
-          if (!data.reportPath || !data.projectRoot) return '';
-          const parts = [
-            'make patch-all',
-            '# ou:',
-            '.build/release/a11y-contract export-fixes patch --all',
-            '--report ' + data.reportPath,
-            '--project ' + data.projectRoot,
-            '--style ' + currentStyle,
-          ];
-          if (!groupByComponent) parts.push('--no-group-by-component');
-          return multiline ? parts.join('\\n') : 'make patch-all STYLE=' + currentStyle;
-        }
-
         document.getElementById('apply-fixes').addEventListener('click', async () => {
           const selected = data.items.filter(item => item.selected);
           if (selected.length === 0) {
@@ -639,21 +731,28 @@ public struct InteractiveA11yHTMLReporter {
             return;
           }
 
+          const manifest = buildSelectionManifest();
           const exportText = buildExport();
-          const patchCommand = buildPatchCommand(true);
-          const preview = patchCommand
-            ? exportText + '\\n\\n' + t('patch_command_header') + '\\n' + patchCommand
-            : exportText;
-
           document.getElementById('export-preview').classList.remove('hidden');
-          document.getElementById('export-code').textContent = preview;
+          document.getElementById('export-code').textContent = exportText;
+
+          const saved = await saveSelectionToDisk(manifest);
+          if (saved === 'cancelled') return;
 
           selected.forEach(item => { item.fixed = true; });
-
-          const copied = await copyText(patchCommand || preview);
           renderIssues();
 
-          showToast(copied ? t('toast_applied_patch') : t('toast_applied_manual_patch'));
+          const command = patchMakeTargetName();
+          const outputPath = selectionOutputLabel();
+          if (saved === 'disk') {
+            showToast(t('toast_selection_saved').replace('{command}', command));
+          } else {
+            showToast(
+              t('toast_selection_downloaded')
+                .replace('{path}', outputPath)
+                .replace('{command}', command)
+            );
+          }
         });
 
         renderChrome();
@@ -727,7 +826,8 @@ private struct InteractiveHTMLPayload: Encodable {
             let groupedSnippets = A11yFixStyle.allCases.reduce(into: [String: String]()) { result, style in
                 let selection = A11yFixSelection(style: style, issueIds: [issue.id], groupByComponent: true)
                 let snippets = generator.generateSnippets(report: report, selection: selection)
-                result[style.rawValue] = snippets.first?.code ?? issue.suggestedFix ?? ""
+                let fallback = style == .framework ? (issue.suggestedFix ?? "") : perStyleSnippets[style.rawValue]
+                result[style.rawValue] = snippets.first?.code ?? fallback ?? ""
             }
 
             let defaultSelected = issue.componentId != nil && issue.componentId != "unknown_component"
@@ -756,7 +856,7 @@ private struct InteractiveHTMLPayload: Encodable {
             generatedAt: report.generatedAt,
             summary: report.summary,
             defaultLanguage: lang.rawValue,
-            defaultStyle: A11yFixStyle.framework.rawValue,
+            defaultStyle: defaultFixStyle(for: report),
             reportPath: reportPath,
             projectRoot: projectRoot,
             selectionOutputPath: selectionOutputPath,
@@ -769,6 +869,13 @@ private struct InteractiveHTMLPayload: Encodable {
             },
             items: items
         )
+    }
+
+    private static func defaultFixStyle(for report: A11yReport) -> String {
+        if report.projectName == "UIKitExample" {
+            return A11yFixStyle.uikit.rawValue
+        }
+        return A11yFixStyle.framework.rawValue
     }
 
     private static func locationText(filePath: String?, line: Int?) -> String? {
@@ -811,14 +918,13 @@ private enum InteractiveHTMLTranslations {
         [
             "en": [
                 "title": "A11y Fix Picker",
-                "notice": "Use HTML to <strong>review</strong> findings by file. For bulk fixes (dozens of files), run <strong>make patch-all</strong> in the terminal — one command, no downloads.",
+                "notice": "Choose a fix style and issues, then click <strong>Save selection</strong> and pick your project <code>.a11y</code> folder. Run <strong>make patch-all</strong> in the terminal — the patch uses exactly what you selected.",
                 "fix_style": "Fix style",
                 "group_by_component": "Group by component",
                 "select_all": "Select all",
                 "clear": "Clear",
                 "copy_fixes": "Copy selected",
-                "apply_fixes": "Copy command",
-                "patch_command_header": "# Patch all files in the terminal (no download):",
+                "apply_fixes": "Save selection",
                 "export_preview": "Export preview",
                 "footer": "Generated by A11yContractKit · Accessibility fix selector",
                 "issues_aria": "Accessibility issues",
@@ -845,19 +951,18 @@ private enum InteractiveHTMLTranslations {
                 "toast_copy_manual": "Preview ready — copy manually from the box below.",
                 "toast_applied": "Fixes accepted: snippets copied and selection saved as a11y-fix-selection.json.",
                 "toast_applied_manual": "Fixes accepted: a11y-fix-selection.json downloaded. Copy snippets from the preview.",
-                "toast_applied_patch": "Command copied. Run in terminal: make patch-all",
-                "toast_applied_manual_patch": "Command in preview — copy make patch-all to terminal.",
+                "toast_selection_saved": "Selection saved to .a11y. Run {command} in the terminal.",
+                "toast_selection_downloaded": "Saved to Downloads (file:// cannot write to the project). Move to {path}, then run {command}. Or use make uikit-open and save again.",
             ],
             "pt": [
                 "title": "Seletor de correções A11y",
-                "notice": "Use o HTML para <strong>revisar</strong> achados por arquivo. Para corrigir em massa (dezenas de arquivos), rode <strong>make patch-all</strong> no terminal — um comando, sem downloads.",
+                "notice": "Escolha estilo e achados, clique em <strong>Salvar seleção</strong> e selecione a pasta <code>.a11y</code> do projeto. Depois rode <strong>make uikit-patch</strong> — o patch usa exatamente o que você selecionou.",
                 "fix_style": "Estilo de correção",
                 "group_by_component": "Agrupar por componente",
                 "select_all": "Selecionar todos",
                 "clear": "Limpar",
                 "copy_fixes": "Copiar selecionados",
-                "apply_fixes": "Copiar comando",
-                "patch_command_header": "# Corrigir todos os arquivos no terminal (sem download):",
+                "apply_fixes": "Salvar seleção",
                 "export_preview": "Prévia da exportação",
                 "footer": "Gerado por A11yContractKit · Seletor de correções de acessibilidade",
                 "issues_aria": "Achados de acessibilidade",
@@ -884,19 +989,18 @@ private enum InteractiveHTMLTranslations {
                 "toast_copy_manual": "Prévia pronta — copie manualmente na caixa abaixo.",
                 "toast_applied": "Correções aceitas: snippets copiados e seleção salva em a11y-fix-selection.json.",
                 "toast_applied_manual": "Correções aceitas: a11y-fix-selection.json baixado. Copie os snippets na prévia.",
-                "toast_applied_patch": "Comando copiado. Cole no terminal: make patch-all",
-                "toast_applied_manual_patch": "Comando na prévia — copie make patch-all no terminal.",
+                "toast_selection_saved": "Seleção gravada em .a11y. Rode {command} no terminal.",
+                "toast_selection_downloaded": "Foi para Downloads (file:// não grava no projeto). Mova para {path} e rode {command}. Ou use make uikit-open e salve de novo.",
             ],
             "es": [
                 "title": "Selector de correcciones A11y",
-                "notice": "Use el HTML para <strong>revisar</strong> hallazgos por archivo. Para corregir en masa (decenas de archivos), ejecute <strong>make patch-all</strong> en la terminal — un comando, sin descargas.",
+                "notice": "Elija estilo y hallazgos, pulse <strong>Guardar selección</strong> y elija la carpeta <code>.a11y</code> del proyecto. Luego ejecute <strong>make patch-all</strong> — el parche usa exactamente lo seleccionado.",
                 "fix_style": "Estilo de corrección",
                 "group_by_component": "Agrupar por componente",
                 "select_all": "Seleccionar todos",
                 "clear": "Limpiar",
                 "copy_fixes": "Copiar seleccionados",
-                "apply_fixes": "Copiar comando",
-                "patch_command_header": "# Corregir todos los archivos en la terminal (sin descarga):",
+                "apply_fixes": "Guardar selección",
                 "export_preview": "Vista previa de exportación",
                 "footer": "Generado por A11yContractKit · Selector de correcciones de accesibilidad",
                 "issues_aria": "Hallazgos de accesibilidad",
@@ -923,8 +1027,8 @@ private enum InteractiveHTMLTranslations {
                 "toast_copy_manual": "Vista previa lista — copie manualmente en el cuadro inferior.",
                 "toast_applied": "Correcciones aceptadas: snippets copiados y selección guardada en a11y-fix-selection.json.",
                 "toast_applied_manual": "Correcciones aceptadas: a11y-fix-selection.json descargado. Copie los snippets en la vista previa.",
-                "toast_applied_patch": "Comando copiado. Ejecute en la terminal: make patch-all",
-                "toast_applied_manual_patch": "Comando en la vista previa — copie make patch-all en la terminal.",
+                "toast_selection_saved": "Selección guardada en .a11y. Ejecute {command} en la terminal.",
+                "toast_selection_downloaded": "Guardado en Descargas (file:// no escribe en el proyecto). Mueva a {path} y ejecute {command}.",
             ],
         ]
     }

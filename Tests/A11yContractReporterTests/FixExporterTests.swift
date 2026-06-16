@@ -235,18 +235,64 @@ final class FixExporterTests: XCTestCase {
         XCTAssertNil(A11yFixExporter.selectionForAllPatchable(report: report))
     }
 
+    func testLoadSelectionManifestIfPresentReturnsNilWhenMissing() throws {
+        let reportURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("a11y-report.json")
+        XCTAssertNil(try A11yFixExporter.loadSelectionManifestIfPresent(nearReport: reportURL))
+    }
+
+    func testLoadSelectionManifestIfPresentLoadsSavedSelection() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let manifest = A11yFixSelectionManifest(
+            style: .uikit,
+            groupByComponent: true,
+            issues: [
+                A11yFixSelectionIssue(
+                    id: deleteLabelIssue.id,
+                    ruleId: deleteLabelIssue.ruleId,
+                    componentId: deleteLabelIssue.componentId,
+                    severity: deleteLabelIssue.severity,
+                    selected: true
+                ),
+                A11yFixSelectionIssue(
+                    id: deleteRoleIssue.id,
+                    ruleId: deleteRoleIssue.ruleId,
+                    componentId: deleteRoleIssue.componentId,
+                    severity: deleteRoleIssue.severity,
+                    selected: false
+                ),
+            ]
+        )
+        let manifestURL = directory.appendingPathComponent("a11y-fix-selection.json")
+        let data = try JSONEncoder().encode(manifest)
+        try data.write(to: manifestURL)
+
+        let reportURL = directory.appendingPathComponent("a11y-report.json")
+        let selection = try A11yFixExporter.loadSelectionManifestIfPresent(nearReport: reportURL)
+        XCTAssertEqual(selection?.style, .uikit)
+        XCTAssertEqual(selection?.issueIds, [deleteLabelIssue.id])
+    }
+
+    func testInteractiveHTMLReporterDefaultsUIKitStyleForUIKitExample() throws {
+        let report = A11yReport(projectName: "UIKitExample", issues: [deleteLabelIssue])
+        let output = InteractiveA11yHTMLReporter().renderHTML(report: report, language: .pt)
+        XCTAssertTrue(output.contains("\"defaultStyle\":\"uikit\""))
+    }
+
     func testInteractiveHTMLReporterEmbedsIssuesAndScripts() throws {
         let output = InteractiveA11yHTMLReporter().renderHTML(report: sampleReport, language: .pt)
         XCTAssertTrue(output.contains("<!DOCTYPE html>"))
         XCTAssertTrue(output.contains("Seletor de correções A11y"))
-        XCTAssertTrue(output.contains("Copiar comando"))
-        XCTAssertTrue(output.contains("delete_button"))
-        XCTAssertTrue(output.contains("DeleteButton.swift:10"))
-        XCTAssertTrue(output.contains("file-group"))
-        XCTAssertTrue(output.contains("applyA11y"))
+        XCTAssertTrue(output.contains("Salvar seleção"))
+        XCTAssertTrue(output.contains("a11y-fix-selection.json"))
+        XCTAssertTrue(output.contains("saveSelectionToDisk"))
         XCTAssertTrue(output.contains("\"pt\""))
         XCTAssertTrue(output.contains("\"es\""))
-        XCTAssertTrue(output.contains("make patch-all"))
     }
 
     func testHTMLReporterKindWritesFile() throws {
