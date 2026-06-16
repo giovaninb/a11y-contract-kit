@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'A11yContractKit'
-  s.version          = '1.1.0'
+  s.version          = '1.1.1'
   s.summary          = 'Developer-first accessibility contract layer for iOS apps'
   s.description      = <<-DESC
     A11yContractKit helps mobile teams define, validate, report, and track

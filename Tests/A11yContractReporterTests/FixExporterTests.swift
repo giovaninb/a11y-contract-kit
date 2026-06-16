@@ -219,18 +219,34 @@ final class FixExporterTests: XCTestCase {
         XCTAssertEqual(loaded.issues.first?.id, deleteLabelIssue.id)
     }
 
+    func testPatchableIssuesExcludesMissingFilePathAndUnknownComponent() {
+        let patchable = A11yFixExporter.patchableIssues(in: sampleReport)
+        XCTAssertEqual(patchable.map(\.id), [deleteLabelIssue.id, deleteRoleIssue.id])
+    }
+
+    func testSelectionForAllPatchableIncludesOnlyPatchableIssues() {
+        let selection = A11yFixExporter.selectionForAllPatchable(report: sampleReport, style: .uikit)
+        XCTAssertEqual(selection?.style, .uikit)
+        XCTAssertEqual(Set(selection?.issueIds ?? []), Set([deleteLabelIssue.id, deleteRoleIssue.id]))
+    }
+
+    func testSelectionForAllPatchableReturnsNilWhenNothingPatchable() {
+        let report = A11yReport(projectName: "Empty", issues: [favoriteLabelIssue, deleteTargetIssue])
+        XCTAssertNil(A11yFixExporter.selectionForAllPatchable(report: report))
+    }
+
     func testInteractiveHTMLReporterEmbedsIssuesAndScripts() throws {
         let output = InteractiveA11yHTMLReporter().renderHTML(report: sampleReport, language: .pt)
         XCTAssertTrue(output.contains("<!DOCTYPE html>"))
         XCTAssertTrue(output.contains("Seletor de correções A11y"))
-        XCTAssertTrue(output.contains("Corrigir"))
+        XCTAssertTrue(output.contains("Copiar comando"))
         XCTAssertTrue(output.contains("delete_button"))
         XCTAssertTrue(output.contains("DeleteButton.swift:10"))
         XCTAssertTrue(output.contains("file-group"))
         XCTAssertTrue(output.contains("applyA11y"))
         XCTAssertTrue(output.contains("\"pt\""))
         XCTAssertTrue(output.contains("\"es\""))
-        XCTAssertTrue(output.contains("apply-fixes"))
+        XCTAssertTrue(output.contains("make patch-all"))
     }
 
     func testHTMLReporterKindWritesFile() throws {

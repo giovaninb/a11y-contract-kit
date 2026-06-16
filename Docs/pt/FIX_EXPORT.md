@@ -17,11 +17,22 @@ Achados sem origem **não aparecem** no relatório.
 Na raiz do repositório:
 
 ```bash
+make scan          # audita o projeto (gera .a11y/a11y-report.json)
+make html          # relatório visual para revisar achados por arquivo
+make patch-all     # corrige TODOS os achados com arquivo de origem (rápido)
+make fix           # scan + patch-all + verify
+```
+
+Tutorial UIKitExample:
+
+```bash
 make uikit-demo    # build + scan + HTML + abrir
-make uikit-patch   # patch automático nos .swift
+make uikit-patch   # patch-all no example
 make uikit-verify  # re-scan
 make uikit-reset   # recomeçar o example
 ```
+
+Para projetos grandes (dezenas de arquivos), use **HTML só para revisar** e **`make patch-all`** para corrigir tudo de uma vez — sem downloads nem seleção manual de issue IDs.
 
 ## Quando usar
 
@@ -59,20 +70,33 @@ a11y-contract export-fixes view \
 open .a11y/a11y-report.html
 ```
 
-A página HTML agrupa achados por arquivo, mostra snippets por estilo e gera `apply-a11y-patches.sh`.
+A página HTML agrupa achados por arquivo e mostra snippets por estilo. Para corrigir em massa, use o terminal (não o botão do navegador).
 
 ### 3. Aplicar correções nos arquivos
+
+**Todos os achados com arquivo (recomendado para projetos grandes):**
+
+```bash
+make patch-all
+# ou:
+a11y-contract export-fixes patch \
+  --report .a11y/a11y-report.json \
+  --all \
+  --project . \
+  --style framework
+```
+
+**Subconjunto por issue ID:**
 
 ```bash
 a11y-contract export-fixes patch \
   --report .a11y/a11y-report.json \
   --issues "<issue-id-1>,<issue-id-2>" \
   --project . \
-  --style framework \
-  --open
+  --style framework
 ```
 
-Use `--dry-run` para pré-visualizar sem gravar.
+Use `--dry-run` para pré-visualizar sem gravar. `--open` abre no editor apenas se ≤5 arquivos mudaram.
 
 ### 4. Exportar snippets (sem patch)
 
@@ -91,6 +115,7 @@ a11y-contract export-fixes apply \
 | Flag | Descrição |
 |------|-----------|
 | `export-fixes patch` | Grava correções em `Sources/` |
+| `--all` | Corrige todos os achados com arquivo de origem |
 | `--dry-run` | Mostra mudanças sem gravar |
 | `--open` | Abre arquivos patchados no editor |
 | `--format markdown` | Gera `a11y-fixes.md` (export apply) |

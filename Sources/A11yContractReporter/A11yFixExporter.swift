@@ -76,4 +76,26 @@ public struct A11yFixExporter {
             selection: selection
         )
     }
+
+    public static func patchableIssues(in report: A11yReport) -> [A11yIssue] {
+        report.issues.filter { issue in
+            guard let filePath = issue.filePath, !filePath.isEmpty else { return false }
+            guard let componentId = issue.componentId, !componentId.isEmpty else { return false }
+            return componentId != "unknown_component"
+        }
+    }
+
+    public static func selectionForAllPatchable(
+        report: A11yReport,
+        style: A11yFixStyle = .framework,
+        groupByComponent: Bool = true
+    ) -> A11yFixSelection? {
+        let issues = patchableIssues(in: report)
+        guard !issues.isEmpty else { return nil }
+        return A11yFixSelection(
+            style: style,
+            issueIds: issues.map(\.id),
+            groupByComponent: groupByComponent
+        )
+    }
 }

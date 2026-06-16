@@ -287,6 +287,9 @@ extension A11yContractCLI {
             @Option(name: .long, help: "Fix style: uikit, framework, swiftui.")
             var style: String = A11yFixStyle.framework.rawValue
 
+            @Flag(name: .long, help: "Patch every issue in the report that has a source file.")
+            var all: Bool = false
+
             @Flag(name: .long, help: "Preview changes without writing files.")
             var dryRun: Bool = false
 
@@ -314,6 +317,10 @@ extension A11yContractCLI {
                     return
                 }
 
+                let changedFiles = outcomes.filter(\.changed).count
+                let issueCount = fixSelection.issueIds.count
+                print("\nSummary: \(issueCount) issue(s), \(changedFiles) file(s) \(dryRun ? "would change" : "updated").")
+
                 for outcome in outcomes {
                     print("\n\(outcome.filePath)")
                     for message in outcome.messages {
@@ -327,14 +334,36 @@ extension A11yContractCLI {
                 }
 
                 if open, !dryRun {
-                    for outcome in outcomes where outcome.changed {
-                        let fileURL = projectURL.appendingPathComponent(outcome.filePath)
-                        try openInEditor(fileURL)
+                    let changedOutcomes = outcomes.filter(\.changed)
+                    if changedOutcomes.count > 5 {
+                        fputs(
+                            "Warning: --open skipped for \(changedOutcomes.count) files. Open from your IDE or run without --open.\n",
+                            stderr
+                        )
+                    } else {
+                        for outcome in changedOutcomes {
+                            let fileURL = projectURL.appendingPathComponent(outcome.filePath)
+                            try openInEditor(fileURL)
+                        }
                     }
                 }
             }
 
             private func resolveSelection(report: A11yReport) throws -> A11yFixSelection {
+                let parsedStyle = A11yFixStyle(rawValue: style.lowercased()) ?? .framework
+                let groupByComponent = !noGroupByComponent
+
+                if all {
+                    guard let selection = A11yFixExporter.selectionForAllPatchable(
+                        report: report,
+                        style: parsedStyle,
+                        groupByComponent: groupByComponent
+                    ) else {
+                        throw ValidationError("No patchable issues with source files in the report.")
+                    }
+                    return selection
+                }
+
                 if let selectionPath = selection {
                     let manifest = try A11yFixExporter.loadSelectionManifest(
                         from: URL(fileURLWithPath: selectionPath, isDirectory: false).standardizedFileURL
@@ -343,7 +372,7 @@ extension A11yContractCLI {
                 }
 
                 if let issuesList = issues {
-                    guard let parsedStyle = A11yFixStyle(rawValue: style.lowercased()) else {
+                    guard A11yFixStyle(rawValue: style.lowercased()) != nil else {
                         throw ValidationError("Invalid style: \(style)")
                     }
                     let issueIds = issuesList
@@ -356,11 +385,11 @@ extension A11yContractCLI {
                     return A11yFixSelection(
                         style: parsedStyle,
                         issueIds: issueIds,
-                        groupByComponent: !noGroupByComponent
+                        groupByComponent: groupByComponent
                     )
                 }
 
-                throw ValidationError("Provide --selection or --issues.")
+                throw ValidationError("Provide --all, --selection, or --issues.")
             }
 
             private func openInEditor(_ url: URL) throws {

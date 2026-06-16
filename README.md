@@ -259,7 +259,7 @@ pod 'A11yContractKit/Testing', :path => '../a11y-contract-kit'
 **Git remoto:**
 
 ```ruby
-pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.1.0'
+pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.1.1'
 ```
 
 Subspecs disponíveis (espelham `Sources/`):
@@ -385,8 +385,17 @@ Como `git cherry-pick` escolhe commits, você pode selecionar **quais achados** 
 **Atalho com Makefile** (na raiz do repo):
 
 ```bash
+make scan          # audita o projeto inteiro
+make html          # relatório visual (revisar por arquivo)
+make patch-all     # corrige TODOS os achados com arquivo (rápido)
+make fix           # scan + patch-all + verify
+```
+
+Tutorial UIKitExample:
+
+```bash
 make uikit-demo    # build + scan + HTML + abrir no navegador
-make uikit-patch   # aplicar correções nos arquivos Swift
+make uikit-patch   # patch-all no example
 make uikit-verify  # re-scan e resumo
 make uikit-reset   # volta ao estado inicial
 ```
@@ -401,10 +410,10 @@ make uikit-reset   # volta ao estado inicial
 # Ou manualmente:
 .build/release/a11y-contract scan --project . --filter UIKitExample --output Examples/UIKitExample/.a11y
 .build/release/a11y-contract export-fixes view --report Examples/UIKitExample/.a11y/a11y-report.json --output Examples/UIKitExample/.a11y --project .
-.build/release/a11y-contract export-fixes patch --report Examples/UIKitExample/.a11y/a11y-report.json --issues "<ids>" --project . --style framework
+.build/release/a11y-contract export-fixes patch --report Examples/UIKitExample/.a11y/a11y-report.json --all --project . --style framework
 ```
 
-A página HTML agrupa achados **por arquivo**, permite selecionar correções e gera um script `apply-a11y-patches.sh`. O comando `export-fixes patch` grava direto em `Sources/`.
+A página HTML agrupa achados **por arquivo** para revisão visual. Para corrigir em massa (dezenas de arquivos), use **`make patch-all`** ou `export-fixes patch --all` — um comando, sem downloads.
 
 Cada achado exige **origem no código** (`A11yAuditable` na tela + `accessibilityIdentifier` no componente). Veja [`Docs/pt/FIX_EXPORT.md`](Docs/pt/FIX_EXPORT.md).
 
