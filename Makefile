@@ -36,6 +36,7 @@ help: ## Lista os comandos disponíveis
 	@printf "Tutorial UIKitExample:\n"
 	@printf "  make uikit-demo    # scan + HTML + abrir\n"
 	@printf "  make uikit-patch   # usa a11y-fix-selection.json salvo no HTML\n"
+	@printf "  make uikit-import-selection  # fallback: copia JSON de ~/Downloads\n"
 	@printf "  make uikit-reset   # recomeçar exercício\n\n"
 	@printf "Variáveis: A11Y_OUT=.a11y  FILTER=A11y  STYLE=framework  LANG=pt\n\n"
 

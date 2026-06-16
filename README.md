@@ -394,10 +394,18 @@ make fix           # scan + patch-all + verify
 Tutorial UIKitExample:
 
 ```bash
-make uikit-demo    # build + scan + HTML + abrir no navegador
-make uikit-patch   # patch-all no example
-make uikit-verify  # re-scan e resumo
-make uikit-reset   # volta ao estado inicial
+make uikit-demo              # build + scan + HTML + abrir (localhost)
+# no HTML: estilo + achados → Salvar seleção → pasta Examples/UIKitExample/.a11y
+make uikit-patch             # aplica a seleção salva
+make uikit-verify            # re-scan e resumo
+make uikit-reset             # volta ao estado inicial
+```
+
+Se o JSON foi para **Downloads**:
+
+```bash
+make uikit-import-selection
+make uikit-patch
 ```
 
 | Estilo | Saída típica |

@@ -26,10 +26,18 @@ make fix           # scan + patch-all + verify
 Tutorial UIKitExample:
 
 ```bash
-make uikit-demo    # build + scan + HTML + abrir
-make uikit-patch   # patch-all no example
-make uikit-verify  # re-scan
-make uikit-reset   # recomeçar o example
+make uikit-demo              # build + scan + HTML + abrir (localhost)
+# no HTML: estilo + achados → Salvar seleção → pasta Examples/UIKitExample/.a11y
+make uikit-patch             # aplica a seleção salva (lê a11y-fix-selection.json)
+make uikit-verify            # re-scan
+make uikit-reset             # recomeçar o example
+```
+
+Se o JSON foi para **Downloads** (abriu o HTML como `file://`):
+
+```bash
+make uikit-import-selection  # copia ~/Downloads → .a11y
+make uikit-patch
 ```
 
 Para projetos grandes (dezenas de arquivos): selecione estilo e achados no HTML, clique **Salvar seleção** (grava `a11y-fix-selection.json` na pasta `.a11y`) e rode **`make patch-all`** — sem copiar comandos.

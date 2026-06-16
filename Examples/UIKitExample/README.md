@@ -9,14 +9,22 @@ Não é um app Xcode — roda via **Swift Package Manager** na raiz do repositó
 Na **raiz** do repositório:
 
 ```bash
-make help          # ver todos os comandos
-make uikit-demo    # build + scan + HTML + abrir no navegador
-make uikit-patch   # aplicar correções no .swift (STYLE=framework por padrão)
-make uikit-verify  # re-scan e resumo dos achados
-make uikit-reset   # volta ao estado inicial e reabre o HTML
+make help                    # ver todos os comandos
+make uikit-demo              # build + scan + HTML + abrir (localhost)
+# no HTML: estilo + achados → Salvar seleção → pasta Examples/UIKitExample/.a11y
+make uikit-patch             # aplica a seleção salva (lê a11y-fix-selection.json)
+make uikit-verify            # re-scan e resumo dos achados
+make uikit-reset             # volta ao estado inicial e reabre o HTML
 ```
 
-Variáveis úteis: `STYLE=uikit|framework|swiftui`, `LANG=pt|en|es`, `DESTINATION='platform=iOS Simulator,...'`.
+Se **Salvar seleção** baixou o JSON em Downloads:
+
+```bash
+make uikit-import-selection  # copia para Examples/UIKitExample/.a11y
+make uikit-patch
+```
+
+Variáveis úteis: `UIKIT_STYLE=uikit|framework|swiftui` (fallback sem JSON salvo), `LANG=pt|en|es`, `DESTINATION='platform=iOS Simulator,...'`.
 
 ## O que contém
 
@@ -95,6 +103,8 @@ Saída: `a11y-fixes.md` com snippets prontos para copiar.
 open Examples/UIKitExample/.a11y/a11y-report.html
 ```
 
+Prefira `make uikit-open` (serve via `http://localhost:8788`) para **Salvar seleção** gravar direto na pasta `.a11y`.
+
 Ou gere direto no scan:
 
 ```bash
@@ -107,10 +117,11 @@ Ou gere direto no scan:
 
 Na página HTML você pode:
 
-- Ver cada achado com severidade e `suggestedFix`
+- Ver cada achado com severidade e snippet por estilo
 - Marcar quais correções aceitar (checkbox)
 - Alternar estilo: **UIKit** | **Framework** | **SwiftUI**
-- Clicar **Copy selected fixes** para colar no projeto
+- Clicar **Salvar seleção** para gravar `a11y-fix-selection.json` na pasta `.a11y`
+- Depois rodar `make uikit-patch` (ou `make uikit-import-selection` se o JSON foi para Downloads)
 
 ### 4. Comparar estilos
 
