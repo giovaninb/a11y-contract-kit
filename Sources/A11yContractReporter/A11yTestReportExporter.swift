@@ -9,7 +9,19 @@ public enum A11yTestReportExporter {
             return
         }
 
-        let directory = URL(fileURLWithPath: outputPath, isDirectory: true)
+        try export(
+            report,
+            to: URL(fileURLWithPath: outputPath, isDirectory: true),
+            testName: testName
+        )
+    }
+
+    public static func export(
+        _ report: A11yReport,
+        to outputDirectory: URL,
+        testName: String
+    ) throws {
+        let directory = outputDirectory
             .appendingPathComponent(sanitize(testName), isDirectory: true)
 
         let partialReport = A11yReport(

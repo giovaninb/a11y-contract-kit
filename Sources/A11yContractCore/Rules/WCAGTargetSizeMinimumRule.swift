@@ -17,15 +17,16 @@ public struct WCAGTargetSizeMinimumRule: A11yRule {
         guard context.isInteractive, let frame = context.frame else { return [] }
         guard frame.width < minimumSize || frame.height < minimumSize else { return [] }
 
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        guard let anchor = context.anchoredComponent else { return [] }
+
         return [
             A11yIssue(
                 ruleId: id,
                 severity: .major,
                 message: "Touch target is \(Int(frame.width))x\(Int(frame.height))pt. WCAG 2.5.8 requires at least \(Int(minimumSize))x\(Int(minimumSize))pt.",
-                componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                componentId: anchor.id,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: [.targetSizeMinimum],
                 suggestedFix: "Increase the interactive area to at least \(Int(minimumSize))x\(Int(minimumSize)) points.",
                 suggestedOwner: .design

@@ -14,15 +14,16 @@ public struct FixedFontSizeRule: A11yRule {
             return []
         }
 
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        guard let anchor = context.anchoredComponent else { return [] }
+
         return [
             A11yIssue(
                 ruleId: id,
                 severity: .major,
                 message: "Text component does not support Dynamic Type.",
-                componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                componentId: anchor.id,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: [.resizeText],
                 suggestedFix: "Set adjustsFontForContentSizeCategory = true or use text styles that scale with content size.",
                 suggestedOwner: .development

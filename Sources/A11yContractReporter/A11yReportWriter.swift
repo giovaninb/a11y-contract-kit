@@ -7,6 +7,7 @@ public enum A11yReporterKind: String, CaseIterable {
     case sonar
     case sarif
     case junit
+    case html
 
     public func makeReporter() -> any A11yReporter {
         switch self {
@@ -15,6 +16,7 @@ public enum A11yReporterKind: String, CaseIterable {
         case .sonar: return SonarGenericIssuesReporter()
         case .sarif: return SarifA11yReporter()
         case .junit: return JUnitA11yReporter()
+        case .html: return InteractiveA11yHTMLReporter()
         }
     }
 }

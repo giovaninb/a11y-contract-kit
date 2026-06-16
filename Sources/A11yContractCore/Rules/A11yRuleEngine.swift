@@ -49,7 +49,13 @@ public struct A11yRuleEngine: Sendable {
 
     public func evaluate(contexts: [A11yRuleContext]) -> [A11yIssue] {
         let issues = contexts.flatMap { evaluate(context: $0) }
-        return deduplicate(issues)
+        return deduplicate(issues.filter(isReportable))
+    }
+
+    private func isReportable(_ issue: A11yIssue) -> Bool {
+        guard let filePath = issue.filePath, !filePath.isEmpty else { return false }
+        guard let componentId = issue.componentId, !componentId.isEmpty else { return false }
+        return componentId != "unknown_component"
     }
 
     private func deduplicate(_ issues: [A11yIssue]) -> [A11yIssue] {

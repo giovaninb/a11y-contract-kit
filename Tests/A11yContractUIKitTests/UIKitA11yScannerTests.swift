@@ -10,12 +10,17 @@ final class UIKitA11yScannerTests: XCTestCase {
         let button = UIButton(type: .system)
         button.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
         button.accessibilityLabel = nil
+        button.accessibilityIdentifier = "delete_button"
 
         let container = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         container.addSubview(button)
 
-        let issues = UIKitA11yScanner().scan(rootView: container)
+        let issues = UIKitA11yScanner(
+            auditSourceFile: "Sources/Demo/DeleteButton.swift"
+        ).scan(rootView: container)
         XCTAssertTrue(issues.contains { $0.ruleId == "ios-a11y-missing-label" && $0.severity == .critical })
+        XCTAssertTrue(issues.allSatisfy { $0.filePath != nil })
+        XCTAssertFalse(issues.contains { $0.componentId == "unknown_component" })
     }
 
     func testApplyA11ySetsAccessibilityProperties() {

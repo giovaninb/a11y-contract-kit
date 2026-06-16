@@ -18,15 +18,17 @@ public struct MissingRoleTraitRule: A11yRule {
 
         guard !hasRole else { return [] }
 
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        guard let anchor = context.anchoredComponent else { return [] }
+
+        let componentName = anchor.id
         return [
             A11yIssue(
                 ruleId: id,
                 severity: .major,
                 message: "Interactive component without appropriate accessibility role/trait.",
                 componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: [.nameRoleValue],
                 suggestedFix: """
                 view.applyA11y(A11ySpec(

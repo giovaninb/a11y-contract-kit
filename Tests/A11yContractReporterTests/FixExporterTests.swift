@@ -75,7 +75,8 @@ final class FixExporterTests: XCTestCase {
 
         let swiftUISelection = A11yFixSelection(style: .swiftUI, issueIds: [deleteLabelIssue.id], groupByComponent: false)
         let swiftUI = A11yFixSnippetGenerator().generateSnippets(report: sampleReport, selection: swiftUISelection)
-        XCTAssertTrue(swiftUI[0].code.contains(".a11yContract"))
+        XCTAssertTrue(swiftUI[0].code.contains(".accessibilityLabel"))
+        XCTAssertFalse(swiftUI[0].code.contains(".a11yContract"))
     }
 
     func testPartialSelectionExportsOnlySelectedIssues() {
@@ -216,5 +217,31 @@ final class FixExporterTests: XCTestCase {
         let loaded = try A11yFixExporter.loadReport(from: reportURL)
         XCTAssertEqual(loaded.issues.count, sampleReport.issues.count)
         XCTAssertEqual(loaded.issues.first?.id, deleteLabelIssue.id)
+    }
+
+    func testInteractiveHTMLReporterEmbedsIssuesAndScripts() throws {
+        let output = InteractiveA11yHTMLReporter().renderHTML(report: sampleReport, language: .pt)
+        XCTAssertTrue(output.contains("<!DOCTYPE html>"))
+        XCTAssertTrue(output.contains("Seletor de correções A11y"))
+        XCTAssertTrue(output.contains("Corrigir"))
+        XCTAssertTrue(output.contains("delete_button"))
+        XCTAssertTrue(output.contains("DeleteButton.swift:10"))
+        XCTAssertTrue(output.contains("file-group"))
+        XCTAssertTrue(output.contains("applyA11y"))
+        XCTAssertTrue(output.contains("\"pt\""))
+        XCTAssertTrue(output.contains("\"es\""))
+        XCTAssertTrue(output.contains("apply-fixes"))
+    }
+
+    func testHTMLReporterKindWritesFile() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let urls = try A11yReportWriter().write(report: sampleReport, kinds: [.html], to: directory)
+        XCTAssertEqual(urls.count, 1)
+        XCTAssertTrue(urls[0].lastPathComponent == "a11y-report.html")
+        let html = try String(contentsOf: urls[0], encoding: .utf8)
+        XCTAssertTrue(html.contains("favorite_button"))
     }
 }

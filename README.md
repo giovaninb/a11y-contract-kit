@@ -259,7 +259,7 @@ pod 'A11yContractKit/Testing', :path => '../a11y-contract-kit'
 **Git remoto:**
 
 ```ruby
-pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.0.0'
+pod 'A11yContractKit/Testing', :git => 'https://github.com/giovaninb/a11y-contract-kit.git', :tag => '1.1.0'
 ```
 
 Subspecs disponíveis (espelham `Sources/`):
@@ -378,31 +378,35 @@ Para ordem de leitura VoiceOver (header → labels → botão), a correção con
 
 #### Cherry-pick de correções (`export-fixes`)
 
-Como `git cherry-pick` escolhe commits, você pode selecionar **quais achados** exportar e em **qual estilo** — útil quando o time não usa o framework em todo o app:
+Como `git cherry-pick` escolhe commits, você pode selecionar **quais achados** exportar e em **qual estilo** — útil quando o time não usa o framework em todo o app.
+
+**Example para aprender:** [`Examples/UIKitExample`](Examples/UIKitExample/) — botão `delete_button` problemático + walkthrough completo.
+
+**Atalho com Makefile** (na raiz do repo):
+
+```bash
+make uikit-demo    # build + scan + HTML + abrir no navegador
+make uikit-patch   # aplicar correções nos arquivos Swift
+make uikit-verify  # re-scan e resumo
+make uikit-reset   # volta ao estado inicial
+```
 
 | Estilo | Saída típica |
 |--------|--------------|
 | `uikit` | APIs nativas (`accessibilityLabel`, traits, constraints) |
 | `framework` | `applyA11y` / `A11yContract` fluent |
-| `swiftui` | `.a11yContract` ou modificadores SwiftUI nativos |
+| `swiftui` | Modificadores SwiftUI nativos (`.accessibilityLabel`, traits, `.frame`) |
 
 ```bash
-# 1. Scan normal
-a11y-contract scan --project . --output .a11y
-
-# 2. Gerar template de seleção
-a11y-contract export-fixes init \
-  --report .a11y/a11y-report.json \
-  --output .a11y/a11y-fix-selection.json
-
-# 3. Editar JSON: marcar "selected": true nos issues desejados + escolher "style"
-
-# 4. Exportar bundle pronto para copiar
-a11y-contract export-fixes apply \
-  --report .a11y/a11y-report.json \
-  --selection .a11y/a11y-fix-selection.json \
-  --output .a11y
+# Ou manualmente:
+.build/release/a11y-contract scan --project . --filter UIKitExample --output Examples/UIKitExample/.a11y
+.build/release/a11y-contract export-fixes view --report Examples/UIKitExample/.a11y/a11y-report.json --output Examples/UIKitExample/.a11y --project .
+.build/release/a11y-contract export-fixes patch --report Examples/UIKitExample/.a11y/a11y-report.json --issues "<ids>" --project . --style framework
 ```
+
+A página HTML agrupa achados **por arquivo**, permite selecionar correções e gera um script `apply-a11y-patches.sh`. O comando `export-fixes patch` grava direto em `Sources/`.
+
+Cada achado exige **origem no código** (`A11yAuditable` na tela + `accessibilityIdentifier` no componente). Veja [`Docs/pt/FIX_EXPORT.md`](Docs/pt/FIX_EXPORT.md).
 
 Atalho sem manifest:
 
@@ -428,7 +432,9 @@ deleteButton.applyA11y(A11ySpec(id: "delete_button", label: "Descriptive label",
 
 // swiftui
 deleteButton
-    .a11yContract(A11ySpec(id: "delete_button", label: "Descriptive label", role: .button))
+    .accessibilityIdentifier("delete_button")
+    .accessibilityLabel("Descriptive label")
+    .accessibilityAddTraits(.isButton)
 ```
 
 ### Fluxo sugerido para amanhã
@@ -437,7 +443,7 @@ deleteButton
 2. Criar `Sample/*A11y*` ou reutilizar telas do Sample nos testes.
 3. Escrever `test*Tela*A11y()` com `A11yAudit.run(on:)`.
 4. Rodar testes no simulador → ler `.a11y/a11y-report.md`.
-5. `export-fixes init` → selecionar achados → `export-fixes apply` no estilo UIKit, Framework ou SwiftUI.
+5. Siga [`Examples/UIKitExample`](Examples/UIKitExample/): `export-fixes init` → selecionar achados → `apply` (UIKit / Framework / SwiftUI).
 6. Colar snippets em `Sources/`, re-rodar testes até `XCTAssertNoCriticalA11yIssues` passar.
 
 ## Modules

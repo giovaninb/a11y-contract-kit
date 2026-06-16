@@ -79,5 +79,19 @@ let package = Package(
             dependencies: ["A11yContractTesting"],
             path: "Tests/A11yContractTestingTests"
         ),
+        .target(
+            name: "UIKitExample",
+            dependencies: ["A11yContractUIKit"],
+            path: "Examples/UIKitExample/Sources/UIKitExample"
+        ),
+        .testTarget(
+            name: "UIKitExampleTests",
+            dependencies: [
+                "UIKitExample",
+                "A11yContractTesting",
+                "A11yContractReporter",
+            ],
+            path: "Examples/UIKitExample/Tests/UIKitExampleTests"
+        ),
     ]
 )

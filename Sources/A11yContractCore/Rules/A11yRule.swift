@@ -62,6 +62,13 @@ public struct A11yRuleContext: Sendable {
     public var effectiveLine: Int? {
         line ?? spec?.source?.line
     }
+
+    /// Component metadata required to report a fixable issue.
+    public var anchoredComponent: (id: String, filePath: String, line: Int?)? {
+        guard let id = effectiveComponentId, !id.isEmpty else { return nil }
+        guard let filePath = effectiveFilePath, !filePath.isEmpty else { return nil }
+        return (id, filePath, effectiveLine)
+    }
 }
 
 public protocol A11yRule: Sendable {

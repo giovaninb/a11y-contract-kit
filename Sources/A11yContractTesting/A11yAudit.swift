@@ -10,11 +10,15 @@ public enum A11yAudit {
         target: A11yConformanceTarget? = nil
     ) -> A11yReport {
         let resolvedTarget = A11yConformanceTargetResolver.resolve(explicit: target)
+        viewController.loadViewIfNeeded()
         let view = viewController.view!
         view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         view.layoutIfNeeded()
 
-        let scanner = UIKitA11yScanner(target: resolvedTarget)
+        let scanner = UIKitA11yScanner(
+            target: resolvedTarget,
+            auditSourceFile: auditSourceFile(for: viewController)
+        )
         var issues = scanner.scan(rootView: view)
 
         let engine = A11yRuleEngine(target: resolvedTarget)
@@ -32,7 +36,7 @@ public enum A11yAudit {
             issues.append(contentsOf: engine.evaluate(context: context))
         }
 
-        issues = deduplicate(issues)
+        issues = deduplicate(issues.filter { $0.filePath != nil && $0.componentId != nil })
 
         return A11yReport(
             projectName: projectName,
@@ -70,6 +74,12 @@ public enum A11yAudit {
             issues: engine.evaluate(context: context),
             conformanceTarget: resolvedTarget
         )
+    }
+
+    private static func auditSourceFile(for viewController: UIViewController) -> String? {
+        let type = type(of: viewController)
+        guard let auditable = type as? A11yAuditable.Type else { return nil }
+        return auditable.a11ySourceFile
     }
 
     private static func deduplicate(_ issues: [A11yIssue]) -> [A11yIssue] {

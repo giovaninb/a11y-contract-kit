@@ -1,5 +1,9 @@
+.DS_Store
+**/.DS_Store
+**/xcuserdata/
 .build/
 .swiftpm/
 DerivedData/
 site/
 .a11y/partial/
+Examples/UIKitExample/.a11y/

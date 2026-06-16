@@ -99,7 +99,9 @@ final class LowContrastRuleTests: XCTestCase {
         let context = A11yRuleContext(
             componentId: "label",
             foregroundColor: foreground,
-            backgroundColor: background
+            backgroundColor: background,
+            filePath: "Sources/Test/Label.swift",
+            line: 12
         )
 
         let issues = rule.evaluate(context: context)
@@ -114,7 +116,9 @@ final class TouchTargetRuleTests: XCTestCase {
         let context = A11yRuleContext(
             componentId: "button",
             isInteractive: true,
-            frame: CGRect(x: 0, y: 0, width: 30, height: 30)
+            frame: CGRect(x: 0, y: 0, width: 30, height: 30),
+            filePath: "Sources/Test/Button.swift",
+            line: 8
         )
 
         let issues = rule.evaluate(context: context)
@@ -128,7 +132,9 @@ final class TouchTargetRuleTests: XCTestCase {
         let context = A11yRuleContext(
             componentId: "button",
             isInteractive: true,
-            frame: CGRect(x: 0, y: 0, width: 20, height: 20)
+            frame: CGRect(x: 0, y: 0, width: 20, height: 20),
+            filePath: "Sources/Test/Button.swift",
+            line: 8
         )
 
         let issues = rule.evaluate(context: context)
@@ -144,7 +150,9 @@ final class MissingAccessibilityLabelRuleTests: XCTestCase {
             componentId: "favorite_button",
             accessibleLabel: nil,
             traits: [.button],
-            isInteractive: true
+            isInteractive: true,
+            filePath: "Sources/Test/FavoriteButton.swift",
+            line: 15
         )
 
         let issues = rule.evaluate(context: context)

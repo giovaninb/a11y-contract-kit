@@ -37,7 +37,9 @@ public struct MinimumTouchTargetRule: A11yRule {
         guard context.isInteractive, let frame = context.frame else { return [] }
         guard frame.width < minimumSize || frame.height < minimumSize else { return [] }
 
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        guard let anchor = context.anchoredComponent else { return [] }
+
+        let componentName = anchor.id
         let severity: A11ySeverity = mode == .appleHIG ? .info : .major
         let message: String
         let suggestedFix: String
@@ -60,8 +62,8 @@ public struct MinimumTouchTargetRule: A11yRule {
                 severity: severity,
                 message: message,
                 componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: wcag,
                 suggestedFix: suggestedFix,
                 suggestedOwner: .design

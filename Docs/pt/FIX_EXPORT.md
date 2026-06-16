@@ -1,8 +1,27 @@
 # Exportação de correções (cherry-pick)
 
-Após a auditoria, `a11y-report.json` lista todos os achados com `suggestedFix`. O fluxo **export-fixes** permite **selecionar** quais correções exportar e escolher o **estilo** de saída — parecido com `git cherry-pick`, mas para correções de acessibilidade.
+Após a auditoria, `a11y-report.json` lista todos os achados com `suggestedFix`. O fluxo **export-fixes** permite **selecionar** quais correções exportar, escolher o **estilo** de saída e **aplicar patches** nos arquivos Swift.
 
-Isso **não** altera `Sources/` automaticamente. Gera snippets prontos para copiar e colar.
+## Origem obrigatória no scan
+
+Todo achado no relatório precisa de **arquivo + linha** para ser corrigível. Configure:
+
+1. **`A11yAuditable`** na `UIViewController` — declara o arquivo Swift da tela
+2. **`accessibilityIdentifier`** em cada componente interativo
+3. Opcional: **`A11yContractRegistry.registerSource(...)`** para linha exata
+
+Achados sem origem **não aparecem** no relatório.
+
+## Atalho com Makefile
+
+Na raiz do repositório:
+
+```bash
+make uikit-demo    # build + scan + HTML + abrir
+make uikit-patch   # patch automático nos .swift
+make uikit-verify  # re-scan
+make uikit-reset   # recomeçar o example
+```
 
 ## Quando usar
 
@@ -17,9 +36,11 @@ Isso **não** altera `Sources/` automaticamente. Gera snippets prontos para copi
 |--------|-----------|-------|
 | UIKit (nativo) | `uikit` | `accessibilityLabel`, traits, constraints Auto Layout |
 | Framework | `framework` | `applyA11y` / API fluente `A11yContract` |
-| SwiftUI | `swiftui` | `.a11yContract` ou modificadores SwiftUI nativos |
+| SwiftUI | `swiftui` | Modificadores SwiftUI nativos |
 
 ## Fluxo
+
+**Aprenda com o example mínimo:** [`Examples/UIKitExample`](../../Examples/UIKitExample/) neste repositório.
 
 ### 1. Rodar scan
 
@@ -27,85 +48,62 @@ Isso **não** altera `Sources/` automaticamente. Gera snippets prontos para copi
 a11y-contract scan --project . --output .a11y --reporters markdown,json
 ```
 
-### 2. Gerar template de seleção
+### 2. Relatório visual (HTML)
 
 ```bash
-a11y-contract export-fixes init \
+a11y-contract export-fixes view \
   --report .a11y/a11y-report.json \
-  --output .a11y/a11y-fix-selection.json
+  --output .a11y \
+  --project .
+
+open .a11y/a11y-report.html
 ```
 
-O template lista todos os issues com `"selected": false`. Edite o arquivo:
+A página HTML agrupa achados por arquivo, mostra snippets por estilo e gera `apply-a11y-patches.sh`.
 
-- Marque `"selected": true` nos achados desejados
-- Escolha `"style"`: `uikit`, `framework` ou `swiftui`
-- Opcionalmente `"groupByComponent": false` para um snippet por issue
-
-### 3. Exportar bundle de correções
+### 3. Aplicar correções nos arquivos
 
 ```bash
+a11y-contract export-fixes patch \
+  --report .a11y/a11y-report.json \
+  --issues "<issue-id-1>,<issue-id-2>" \
+  --project . \
+  --style framework \
+  --open
+```
+
+Use `--dry-run` para pré-visualizar sem gravar.
+
+### 4. Exportar snippets (sem patch)
+
+```bash
+a11y-contract export-fixes init --report .a11y/a11y-report.json --output .a11y/a11y-fix-selection.json
+# editar JSON: "selected": true, "style": "uikit"
+
 a11y-contract export-fixes apply \
   --report .a11y/a11y-report.json \
   --selection .a11y/a11y-fix-selection.json \
   --output .a11y
 ```
 
-Cria `.a11y/a11y-fixes.md` por padrão.
-
-### Atalho (sem manifest)
-
-```bash
-a11y-contract export-fixes apply \
-  --report .a11y/a11y-report.json \
-  --issues "<issue-id-1>,<issue-id-2>" \
-  --style uikit \
-  --output .a11y
-```
-
-Os IDs vêm de `a11y-report.json` (`issues[].id`).
-
 ## Opções
 
 | Flag | Descrição |
 |------|-----------|
-| `--format markdown` | Gera `a11y-fixes.md` (padrão) |
-| `--format swift` | Gera `a11y-fixes.swift` com comentários de contexto |
-| `--no-group-by-component` | Um snippet por issue em vez de agrupar por `componentId` |
+| `export-fixes patch` | Grava correções em `Sources/` |
+| `--dry-run` | Mostra mudanças sem gravar |
+| `--open` | Abre arquivos patchados no editor |
+| `--format markdown` | Gera `a11y-fixes.md` (export apply) |
+| `--no-group-by-component` | Um snippet por issue |
 
-## Exemplo: mesmo componente, três estilos
-
-Para `delete_button` sem label e role:
-
-```swift
-// uikit
-deleteButton.accessibilityIdentifier = "delete_button"
-deleteButton.accessibilityLabel = "Descriptive label"
-deleteButton.accessibilityTraits = [.button]
-
-// framework
-deleteButton.applyA11y(A11ySpec(
-    id: "delete_button",
-    label: "Descriptive label",
-    role: .button,
-    wcag: [.nameRoleValue],
-))
-
-// swiftui
-deleteButton
-    .a11yContract(A11ySpec(
-        id: "delete_button",
-        label: "Descriptive label",
-        role: .button
-    ))
-```
-
-## O que não está incluído (MVP)
+## Capacidades (v1.1)
 
 | Capacidade | Status |
 |------------|--------|
 | Exportar correções selecionadas | Sim |
-| Múltiplos estilos de saída | Sim |
-| Patch automático de código (`a11y-contract fix`) | Não |
+| HTML interativo com agrupamento por arquivo | Sim |
+| Patch automático (`export-fixes patch`) | Sim |
+| Origem obrigatória no scan | Sim |
 | Exportação de fixes em SARIF / Sonar | Não |
 
-Depois de colar os snippets, re-rode os testes e confirme com `XCTAssertNoCriticalA11yIssues`. O app **A11yContractDemo** (aba UIKit → **Corrigido**) mostra o resultado visual esperado.
+Depois de corrigir, re-rode o scan e confirme com `XCTAssertNoCriticalA11yIssues`.

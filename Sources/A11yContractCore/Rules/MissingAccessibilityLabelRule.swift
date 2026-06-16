@@ -20,15 +20,17 @@ public struct MissingAccessibilityLabelRule: A11yRule {
         let label = context.accessibleLabel?.trimmingCharacters(in: .whitespacesAndNewlines)
         guard label == nil || label?.isEmpty == true else { return [] }
 
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        guard let anchor = context.anchoredComponent else { return [] }
+
+        let componentName = anchor.id
         return [
             A11yIssue(
                 ruleId: id,
                 severity: .critical,
                 message: "Interactive component without accessible label.",
                 componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: [.nameRoleValue, .nonTextContent],
                 suggestedFix: """
                 view.applyA11y(A11ySpec(

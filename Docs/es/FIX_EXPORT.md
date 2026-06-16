@@ -21,6 +21,8 @@ Esto **no** modifica `Sources/` automáticamente. Genera snippets listos para co
 
 ## Flujo
 
+**Aprende con el example mínimo:** [`Examples/UIKitExample`](../../Examples/UIKitExample/) en este repositorio.
+
 ### 1. Ejecutar scan
 
 ```bash

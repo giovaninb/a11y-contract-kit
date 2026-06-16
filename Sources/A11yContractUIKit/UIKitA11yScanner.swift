@@ -4,12 +4,15 @@ import A11yContractCore
 
 public final class UIKitA11yScanner {
     private let engine: A11yRuleEngine
+    private let auditSourceFile: String?
 
     public init(
         target: A11yConformanceTarget = .wcag22AA,
         minimumTouchTarget: CGFloat = 44,
+        auditSourceFile: String? = nil,
         engine: A11yRuleEngine? = nil
     ) {
+        self.auditSourceFile = auditSourceFile
         if let engine {
             self.engine = engine
         } else {
@@ -43,11 +46,24 @@ public final class UIKitA11yScanner {
     private func collectContexts(from view: UIView, in rootView: UIView) -> [A11yRuleContext] {
         guard !view.isHidden, view.alpha > 0.01 else { return [] }
 
-        var contexts = [makeContext(for: view, in: rootView)]
+        var contexts: [A11yRuleContext] = []
+        if shouldEvaluate(view) {
+            contexts.append(makeContext(for: view, in: rootView))
+        }
         for subview in view.subviews {
             contexts.append(contentsOf: collectContexts(from: subview, in: rootView))
         }
         return contexts
+    }
+
+    /// Skips plain container views that are not exposed to assistive tech.
+    private func shouldEvaluate(_ view: UIView) -> Bool {
+        if view is UIControl { return true }
+        if view.isAccessibilityElement { return true }
+        if view.accessibilityIdentifier != nil { return true }
+        if !UIKitTraitExtractor.roles(from: view.accessibilityTraits).isEmpty { return true }
+        if let gestures = view.gestureRecognizers, !gestures.isEmpty { return true }
+        return false
     }
 
     private func makeContext(for view: UIView, in rootView: UIView) -> A11yRuleContext {
@@ -78,9 +94,14 @@ public final class UIKitA11yScanner {
 
         let traits = UIKitTraitExtractor.roles(from: view.accessibilityTraits)
         let isInteractive = UIKitTraitExtractor.isInteractive(view: view)
+        let componentId = view.accessibilityIdentifier
+        let registrySpec = componentId.flatMap { A11yContractRegistry.shared.spec(forComponentId: $0) }
+        let resolvedSource = componentId.flatMap {
+            A11ySourceLocator.resolve(componentId: $0, fallbackFile: auditSourceFile)
+        }
 
         return A11yRuleContext(
-            componentId: view.accessibilityIdentifier,
+            componentId: componentId,
             accessibleLabel: label,
             traits: traits,
             isInteractive: isInteractive,
@@ -89,9 +110,9 @@ public final class UIKitA11yScanner {
             backgroundColor: background,
             adjustsFontForContentSizeCategory: adjustsFont,
             isLargeText: isLargeText,
-            spec: nil,
-            filePath: nil,
-            line: nil,
+            spec: registrySpec,
+            filePath: resolvedSource?.filePath,
+            line: resolvedSource?.line,
             declaresColorOnlyState: false
         )
     }

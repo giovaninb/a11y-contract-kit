@@ -34,8 +34,10 @@ public struct LowContrastRule: A11yRule {
             return []
         }
 
+        guard let anchor = context.anchoredComponent else { return [] }
+
         let ratio = A11yContrast.ratio(foreground: foreground, background: background)
-        let componentName = context.effectiveComponentId ?? "unknown_component"
+        let componentName = anchor.id
         let criterion: WCAGCriterion = effectiveLevel == .aaa ? .contrastEnhanced : .contrastMinimum
         let required: String
         if effectiveLevel == .aaa {
@@ -50,8 +52,8 @@ public struct LowContrastRule: A11yRule {
                 severity: .critical,
                 message: String(format: "Insufficient color contrast (%.2f:1). Minimum required: %@.", ratio, required),
                 componentId: componentName,
-                filePath: context.effectiveFilePath,
-                line: context.effectiveLine,
+                filePath: anchor.filePath,
+                line: anchor.line,
                 wcag: [criterion],
                 suggestedFix: "Adjust foreground and background colors to meet WCAG contrast requirements.",
                 suggestedOwner: .design

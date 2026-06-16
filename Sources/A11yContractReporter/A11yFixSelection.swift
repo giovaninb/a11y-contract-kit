@@ -18,6 +18,7 @@ public enum A11yFixStyle: String, Codable, CaseIterable, Sendable {
 public enum A11yFixExportFormat: String, Codable, CaseIterable, Sendable {
     case markdown
     case swift
+    case html
 }
 
 public struct A11yFixSelection: Codable, Sendable, Equatable {

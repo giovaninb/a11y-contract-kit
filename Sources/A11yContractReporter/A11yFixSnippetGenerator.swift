@@ -231,65 +231,42 @@ public struct A11yFixSnippetGenerator {
         minimumTouchTarget: Int,
         issues: [A11yIssue]
     ) -> String {
-        let contractRules: Set<String> = [
-            "ios-a11y-missing-label",
-            "ios-a11y-missing-role",
-            "ios-a11y-missing-hint-destructive",
-            "ios-a11y-color-only-state",
-        ]
+        var modifierLines: [String] = []
 
-        if !ruleIds.intersection(contractRules).isEmpty || ruleIds.contains(where: { $0.hasPrefix("ios-a11y-touch-target") }) {
-            var modifierLines: [String] = []
+        if ruleIds.contains("ios-a11y-missing-label") || ruleIds.contains("ios-a11y-missing-role") {
+            modifierLines.append(".accessibilityIdentifier(\"\(componentId)\")")
+        }
+        if ruleIds.contains("ios-a11y-missing-label") {
+            modifierLines.append(".accessibilityLabel(\"Descriptive label\")")
+        }
+        if ruleIds.contains("ios-a11y-missing-role") {
+            modifierLines.append(".accessibilityAddTraits(.isButton)")
+        }
+        if ruleIds.contains(where: { $0.hasPrefix("ios-a11y-touch-target") }) {
+            modifierLines.append(".frame(minWidth: \(minimumTouchTarget), minHeight: \(minimumTouchTarget))")
+        }
+        if ruleIds.contains("ios-a11y-fixed-font") {
+            modifierLines.append(".font(.body)")
+        }
+        if ruleIds.contains("ios-a11y-low-contrast") {
+            modifierLines.append(".foregroundStyle(.primary)")
+            modifierLines.append(".background(Color(.secondarySystemBackground))")
+        }
 
-            if ruleIds.contains("ios-a11y-missing-label") || ruleIds.contains("ios-a11y-missing-role") {
-                modifierLines.append(".a11yContract(")
-                modifierLines.append("    A11ySpec(")
-                modifierLines.append("        id: \"\(componentId)\",")
-                modifierLines.append("        label: \"Descriptive label\",")
-                modifierLines.append("        role: .button")
-                modifierLines.append("    )")
-                modifierLines.append(")")
-            } else {
-                if ruleIds.contains("ios-a11y-missing-label") {
-                    modifierLines.append(".accessibilityLabel(\"Descriptive label\")")
-                }
-                if ruleIds.contains("ios-a11y-missing-role") {
-                    modifierLines.append(".accessibilityAddTraits(.isButton)")
-                }
-            }
-
-            if ruleIds.contains(where: { $0.hasPrefix("ios-a11y-touch-target") }) {
-                modifierLines.append(".frame(minWidth: \(minimumTouchTarget), minHeight: \(minimumTouchTarget))")
-            }
-            if ruleIds.contains("ios-a11y-fixed-font") {
-                modifierLines.append(".font(.body)")
-            }
-            if ruleIds.contains("ios-a11y-low-contrast") {
-                modifierLines.append(".foregroundStyle(.primary)")
-                modifierLines.append(".background(Color(.secondarySystemBackground))")
-            }
-
-            var lines = [
-                "\(variableName) // your SwiftUI view",
-            ]
-            lines.append(contentsOf: modifierLines)
-
+        if modifierLines.isEmpty {
+            var lines: [String] = ["\(variableName) // your SwiftUI view"]
             appendInstructionalFallbacks(to: &lines, issues: issues, style: .swiftUI)
+            if lines.count == 1 {
+                return fallbackSuggestedFix(from: issues)
+            }
             return lines.joined(separator: "\n")
         }
 
-        var lines: [String] = ["\(variableName) // your SwiftUI view"]
-        if ruleIds.contains("ios-a11y-fixed-font") {
-            lines.append(".font(.body)")
-        }
-        if ruleIds.contains("ios-a11y-low-contrast") {
-            lines.append(".foregroundStyle(.primary)")
-            lines.append(".background(Color(.secondarySystemBackground))")
-        }
+        var lines = [
+            "\(variableName) // your SwiftUI view",
+        ]
+        lines.append(contentsOf: modifierLines)
         appendInstructionalFallbacks(to: &lines, issues: issues, style: .swiftUI)
-        if lines.count == 1 {
-            return fallbackSuggestedFix(from: issues)
-        }
         return lines.joined(separator: "\n")
     }
 

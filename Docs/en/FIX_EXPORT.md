@@ -21,6 +21,8 @@ This does **not** patch your `Sources/` automatically. It generates snippets rea
 
 ## Workflow
 
+**Learn with the minimal example:** [`Examples/UIKitExample`](../../Examples/UIKitExample/) in this repository.
+
 ### 1. Run a scan
 
 ```bash
